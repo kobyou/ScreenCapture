@@ -11,6 +11,7 @@ void MsgOut(const char* _Format, ...);
 typedef enum {
 	ACTION_CHOOSING,
 	ACTION_ADJUST,
+	ACTION_TEXT,
 	ACTION_RECT,
 	ACTION_ELLIPSE,
 	ACTION_ARROW,
@@ -61,6 +62,7 @@ public:
 	//user msg processing
 	LRESULT OnRecap(WPARAM wParam, LPARAM lParam);
 	LRESULT OnSaveImage(WPARAM wParam, LPARAM lParam);
+	LRESULT OnText(WPARAM wParam, LPARAM lParam);
 	LRESULT OnRectangle(WPARAM wParam, LPARAM lParam);
 	LRESULT OnEllipse(WPARAM wParam, LPARAM lParam);
 	LRESULT OnArrowLine(WPARAM wParam, LPARAM lParam);

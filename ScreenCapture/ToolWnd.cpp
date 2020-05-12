@@ -2,11 +2,11 @@
 #include "ToolWnd.h"
 
 
-#define  TBBTN_CNT 13  //工具栏按钮数
+#define  TBBTN_CNT 14  //工具栏按钮数
 #define  TBSEP_CNT 2   //工具栏分割线数
 
 
-const LPSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("矩形工具 F3"),
+const LPSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("文字工具 F8"), _T("矩形工具 F3"),
                                  _T("椭圆工具 F4"), _T("箭头工具 F5"), _T("涂鸦 F6"),
                                  _T("荧光笔 F7"), _T("撤销编辑 Ctrl+Z"), _T("恢复编辑 Ctrl+Y"),
                                  _T("取消截图"), _T("完成截图")
@@ -192,25 +192,26 @@ LRESULT  CToolWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 			case IDM_FINISH:
 				::SendMessage(GetParent(m_hWnd), SCMSG_RECAP + iCmd, 0L, 0L);
 				break;
+			case IDM_TEXT:
 			case IDM_RECT:
 			case IDM_ELLIPSE:
 			case IDM_ARROW:
 			case IDM_SCRAWL:
 			case IDM_HIGHLIGHT: {
-				m_bsChecked.flip(iCmd - IDM_RECT);
+				m_bsChecked.flip(iCmd - IDM_TEXT);
 				for(int iGraphCmd = 0; iGraphCmd < N_GRAPH; ++iGraphCmd) {
-					if(iCmd - IDM_RECT != iGraphCmd) {
-						::SendMessage(m_pToolBar->GetSafeHwnd(), TB_SETSTATE, IDM_RECT + iGraphCmd, TBSTATE_ENABLED);
+					if(iCmd - IDM_TEXT != iGraphCmd) {
+						::SendMessage(m_pToolBar->GetSafeHwnd(), TB_SETSTATE, IDM_TEXT + iGraphCmd, TBSTATE_ENABLED);
 					}
 				}
-				UINT uState = m_bsChecked.test(iCmd - IDM_RECT) ? TBSTATE_PRESSED | TBSTATE_ENABLED : TBSTATE_ENABLED;
+				UINT uState = m_bsChecked.test(iCmd - IDM_TEXT) ? TBSTATE_PRESSED | TBSTATE_ENABLED : TBSTATE_ENABLED;
 				::SendMessage(m_pToolBar->GetSafeHwnd(), TB_SETSTATE, iCmd, (LPARAM)uState);
 
-				::SendMessage(GetParent(m_hWnd), SCMSG_RECAP + iCmd, WPARAM(m_bsChecked[iCmd - IDM_RECT]), 0L);
+				::SendMessage(GetParent(m_hWnd), SCMSG_RECAP + iCmd, WPARAM(m_bsChecked[iCmd - IDM_TEXT]), 0L);
 
 				//确保m_bsChecked至多只有1位为1
 				std::bitset<N_GRAPH> bsChecked;
-				bsChecked[iCmd - IDM_RECT] = m_bsChecked[iCmd - IDM_RECT];
+				bsChecked[iCmd - IDM_TEXT] = m_bsChecked[iCmd - IDM_TEXT];
 				m_bsChecked = bsChecked;
 			}
 			break;

@@ -222,5 +222,133 @@
     <None Include="..\Debug\CursorRes\Colorful.cur">
       <Filter>资源文件\Cursor</Filter>
     </None>
+    <None Include="..\Resources\CursorRes\Colorful.cur">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\color\bitmap1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\Text.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\AppIcon_Big.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\AppIcon_Small.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\recap.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\save.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\rectangle.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\ellipse.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\arrow.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\scrawl.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\highlight.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\undo.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\redo.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\cancel.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\normal\finish.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\recap_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\save_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\rectangle_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\ellipse_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\arrow_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\scrawl_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\highlight_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\undo_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\redo_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\cancel_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\IconRes\hot\finish_hot.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color2.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color3.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color4.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color5.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color6.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color7.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color8.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color9.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color10.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color11.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\Color\color12.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\PenSize\size1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\PenSize\size2.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\Resources\PenSize\size3.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

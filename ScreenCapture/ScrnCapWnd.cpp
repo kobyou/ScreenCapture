@@ -1145,6 +1145,14 @@ LRESULT CScrnCapWnd::OnSaveImage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+LRESULT CScrnCapWnd::OnText(WPARAM wParam, LPARAM lParam)
+{
+	BOOL bShow = BOOL(wParam);
+	m_emAction = bShow ? ACTION_TEXT : m_emAction;
+	CreateColorWnd(bShow);
+	return 0;
+}
+
 LRESULT CScrnCapWnd::OnRectangle(WPARAM wParam, LPARAM lParam)
 {
 	BOOL bShow = BOOL(wParam);
@@ -1284,6 +1292,10 @@ LRESULT CScrnCapWnd::ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 		case SCMSG_SAVEIMAGE:
 			OnSaveImage(wParam, lParam);
+			break;
+		case SCMSG_TEXT:
+			MsgOut("SCMSG_TEXT\n");
+			OnText(wParam, lParam);
 			break;
 		case SCMSG_RECTANGLE:
 			OnRectangle(wParam, lParam);
@@ -1591,6 +1603,9 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 			case ACTION_SCRAWL:
 			case ACTION_HIGHLIGHT:
 				m_hCursor = ::LoadCursor(NULL, IDC_CROSS);
+				break;
+			case ACTION_TEXT:
+				m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
 				break;
 		}
 

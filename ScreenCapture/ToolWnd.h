@@ -5,10 +5,9 @@
 #include "ColorWnd.h"
 #include <bitset>
 
-#define  N_GRAPH   5
+#define  N_GRAPH   6
 
-class CToolWnd : public CWndImpl
-{
+class CToolWnd : public CWndImpl {
 public:
 	CToolWnd();
 	~CToolWnd();
