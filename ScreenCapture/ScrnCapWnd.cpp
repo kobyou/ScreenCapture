@@ -114,7 +114,7 @@ void MsgOut(const char* _Format, ...)
 				CreateDirectory(fileName, NULL);
 			}
 
-			char *t1 = mctimelocal(1);
+			char *t1 = mctimelocal(2);
 			_tcscat_s(fileName, MAX_PATH, _T("\\ScrShots_"));
 			_tcscat_s(fileName, MAX_PATH, t1);
 			_tcscat_s(fileName, MAX_PATH, _T(".log"));
@@ -566,6 +566,119 @@ BOOL CScrnCapWnd::Save()
 	return bSuccess;
 }
 
+BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
+{
+	BITMAP csBitmap;
+	int nRetValue = GetObject(hB, sizeof(csBitmap), &csBitmap);
+	unsigned long n_BPP, n_Width, n_Height;
+
+	if(nRetValue) {
+		n_Width = (long)csBitmap.bmWidth;
+		n_Height = (long)csBitmap.bmHeight;
+		n_BPP = (long)csBitmap.bmBitsPixel;
+		long sz = csBitmap.bmWidth * csBitmap.bmHeight * (csBitmap.bmBitsPixel >> 3);
+		csBitmap.bmBits = (void *) new BYTE[sz];
+		GetBitmapBits((HBITMAP)hB, sz, csBitmap.bmBits);
+
+		MsgOut("Proceeding Image %dx%d, BPP=%d", n_Width, n_Height, n_BPP, csBitmap.bmBits);
+	}
+	else {
+		MsgOut("Invalid Object in Clipboard Buffer");
+		return FALSE;
+	}
+
+	DWORD *lp_Canvas = new DWORD[n_Width * n_Height];
+	if(n_BPP == 32) {
+		for(unsigned long y = 0; y < n_Height; y++) {
+			for(unsigned long x = 0; x < n_Width; x++) {
+				RGBQUAD * rgb = ((RGBQUAD *)((char*)(csBitmap.bmBits)
+				                             + csBitmap.bmWidthBytes * y + x * sizeof(DWORD)));
+				lp_Canvas[(n_Height - 1 - y)*n_Width + x] = *((DWORD *)rgb);
+			}
+		}
+	}
+	else if(n_BPP == 24) {
+		for(unsigned long y = 0; y < n_Height; y++) {
+			for(unsigned long x = 0; x < n_Width; x++) {
+
+				RGBTRIPLE rgbi = *((RGBTRIPLE *)((char*)(csBitmap.bmBits)
+				                                 + csBitmap.bmWidthBytes * y + x * 3));
+
+				RGBQUAD rgbq;
+				rgbq.rgbRed = rgbi.rgbtRed;
+				rgbq.rgbGreen = rgbi.rgbtGreen;
+				rgbq.rgbBlue = rgbi.rgbtBlue;
+				lp_Canvas[(n_Height - 1 - y)*n_Width + x] = *((DWORD *)(&rgbq));
+			}
+		}
+	}
+	else {
+		// here I could handle other resultions also, but I think it is
+		// too obvoius to add them here....
+	}
+
+	//get system time
+	SYSTEMTIME st = { 0 };
+	GetLocalTime(&st);
+
+	//get user name
+	char cUser[256] = { 0 };
+	DWORD dwSize = 256;
+	GetUserName(cUser, &dwSize);
+
+	//file name
+	char fileDir[256] = { 0 };
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", cUser);
+	if(_access(fileDir, 0) != 0) {
+		_mkdir(fileDir);
+	}
+
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
+	if(_access(fileDir, 0) != 0) {
+		_mkdir(fileDir);
+	}
+
+	char file_name[256] = { 0 };
+	sprintf_s(file_name, "%s\\ScrShots_%02d%02d%02d.png", fileDir, st.wHour, st.wMinute, st.wSecond);
+
+	unsigned long n_Bits = 32;
+	FILE *pFile;
+	errno_t err;
+	err = fopen_s(&pFile, file_name, "wb");
+	if(pFile == NULL) {
+		MsgOut("File Cannot Be Written");
+		return FALSE;
+	}
+
+	// save bitmap file header
+	BITMAPFILEHEADER fileHeader;
+	fileHeader.bfType = 0x4d42;
+	fileHeader.bfSize = 0;
+	fileHeader.bfReserved1 = 0;
+	fileHeader.bfReserved2 = 0;
+	fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	fwrite((char*)&fileHeader, sizeof(fileHeader), 1, pFile);
+
+	// save bitmap info header
+	BITMAPINFOHEADER infoHeader;
+	infoHeader.biSize = sizeof(infoHeader);
+	infoHeader.biWidth = n_Width;
+	infoHeader.biHeight = n_Height;
+	infoHeader.biPlanes = 1;
+	infoHeader.biBitCount = (unsigned short)(n_Bits & 0xffff);
+	infoHeader.biCompression = BI_RGB;
+	infoHeader.biSizeImage = 0;
+	infoHeader.biXPelsPerMeter = 0;
+	infoHeader.biYPelsPerMeter = 0;
+	infoHeader.biClrUsed = 0;
+	infoHeader.biClrImportant = 0;
+	fwrite((char*)&infoHeader, sizeof(infoHeader), 1, pFile);
+	fwrite((char*)lp_Canvas, 1, (n_Bits >> 3)*n_Width * n_Height, pFile);
+	fclose(pFile);
+
+	return TRUE;
+}
+
 void CScrnCapWnd::Finish()
 {
 	HBITMAP hCopyBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, abs(m_rcSel.GetW()), abs(m_rcSel.GetH()));
@@ -573,6 +686,9 @@ void CScrnCapWnd::Finish()
 	RectX rcTempSel(0, 0, abs(m_rcSel.GetW()), abs(m_rcSel.GetH())); //from zero point
 	BitBltEx(m_hMemDC, rcTempSel, m_hMemCurScrnDC, m_rcSel.GetStartPoint(), SRCCOPY | CAPTUREBLT);
 	::SelectObject(m_hMemDC, hOldCopyBMP);
+
+	//add save bitmap to default path Koby.Ou 20200512
+	SaveBitmap(hCopyBMP);
 
 	if(CopyBMP2Clipboard(hCopyBMP, GetSafeHwnd())) {
 		SendMessage(WM_CLOSE);
@@ -955,7 +1071,8 @@ LRESULT CScrnCapWnd::OnLButtonDbClk(WPARAM wParam, LPARAM lParam)
 LRESULT CScrnCapWnd::OnRButtonUp(WPARAM wParam, LPARAM lParam)
 {
 	if(m_emAction == ACTION_CHOOSING) {
-		SendMessage(WM_CLOSE);
+		//SendMessage(WM_CLOSE);
+		FullScreen();
 	}
 	else {
 		POINT ptCurPos = {0};
@@ -1105,6 +1222,15 @@ LRESULT CScrnCapWnd::OnFinish(WPARAM wParam, LPARAM lParam)
 {
 	Finish();
 	return 0;
+}
+
+void CScrnCapWnd::FullScreen()
+{
+	m_emAction = ACTION_FULLSCREEN ;
+	m_rcSel = SCREEN_RC;
+	CreateToolWnd();
+	AdjustToolPos();
+	InvalidateRgn(GetSafeHwnd(), NULL, FALSE);
 }
 
 LRESULT CScrnCapWnd::OnPenSizeChange(WPARAM wParam, LPARAM lParam)

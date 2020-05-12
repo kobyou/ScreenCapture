@@ -18,7 +18,8 @@ typedef enum {
 	ACTION_HIGHLIGHT,
 	ACTION_SAVE,
 	ACTION_UNDO,
-	ACTION_REDO
+	ACTION_REDO,
+	ACTION_FULLSCREEN
 } ACTION;
 
 //¿≠…Ï∑ΩœÚL:left,R:right,U:up,D:down
@@ -100,8 +101,11 @@ public:
 	void Redo(void);
 
 	BOOL Save(void);
+	BOOL SaveBitmap(HBITMAP hB);
 
 	void Finish(void);
+
+	void FullScreen(void);
 
 	void ClearUndoStack(void);
 	void ClearRedoStack(void);

@@ -22,6 +22,7 @@
 #include <commdlg.h>
 
 #include <io.h>
+#include <direct.h>
 using namespace std;
 
 #include "assert.h"
