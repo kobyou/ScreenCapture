@@ -207,7 +207,6 @@ private:
 private:
 	static HCURSOR m_hCursor;
 	static std::vector<RectX> m_vecAllWndRect;
-protected:
 };
 
 #endif

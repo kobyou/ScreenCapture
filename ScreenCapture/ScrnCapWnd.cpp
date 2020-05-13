@@ -107,16 +107,15 @@ void MsgOut(const char* _Format, ...)
 
 			_tcscpy_s(fileName, file);
 
-			TCHAR *t2 = (TCHAR *)mctimelocal(2);
+
 			_tcscat_s(fileName, MAX_PATH, _T("\\"));
-			_tcscat_s(fileName, MAX_PATH, t2);
+			_tcscat_s(fileName, MAX_PATH, mctimelocal(2));
 			if(_access((CHAR *)fileName, 0) == -1) {
 				CreateDirectory(fileName, NULL);
 			}
 
-			TCHAR *t1 = (TCHAR *) mctimelocal(2);
 			_tcscat_s(fileName, MAX_PATH, _T("\\ScrShots_"));
-			_tcscat_s(fileName, MAX_PATH, t1);
+			_tcscat_s(fileName, MAX_PATH, mctimelocal(2));
 			_tcscat_s(fileName, MAX_PATH, _T(".log"));
 		}
 
@@ -628,12 +627,12 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 
 	//file name
 	char fileDir[256] = { 0 };
-	sprintf_s(fileDir, "C:\\Users\\%ws\\Pictures\\ScrShots", cUser);
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", cUser);
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
 
-	sprintf_s(fileDir, "C:\\Users\\%ws\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
@@ -784,8 +783,8 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 		case ACTION_SCRAWL:
 		case ACTION_HIGHLIGHT: {
 			//绘图操作
-			m_hGraphBMP =  CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y);
-			m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP);
+			m_hGraphBMP =  CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
+			m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP); //绘画
 			BitBltEx(m_hMemDC, SCREEN_RC, m_hMemCurScrnDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 
 			if(NULL != m_pGraph) {
@@ -793,7 +792,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 				m_pGraph = NULL;
 			}
 			m_pGraph = GraphFactory::CreateGraph(m_emAction);
-			MsgOut("OnLButtonDown->ACTION:%d\n", m_emAction);
+
 			break;
 		}
 
@@ -862,7 +861,6 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 				BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 				m_pGraph->DrawGraph(m_hMemCurScrnDC, m_ptStart, ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
 				InvalidateRgn(GetSafeHwnd(), NULL, false);
-				MsgOut("OnMouseMove->ACTION:%d\n", m_emAction);
 				break;
 			}
 			case ACTION_SCRAWL:
@@ -908,6 +906,13 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 
 				break;
 			case ACTION_TEXT: { //文字输入
+				RectX rect(m_ptStart.x, m_ptStart.y, m_ptStart.x + 100, m_ptStart.y + 20);
+				//DrawRect(m_hMemCurScrnDC, m_rcText, 1, PS_DASH);
+				//DrawAdjustSquare(m_hMemCurScrnDC, m_rcText, 2);
+
+				//m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
+				//SelectObject(m_hMemDC, m_hOldGraphBMP);
+				//InvalidateRgn(GetSafeHwnd(), NULL, false);
 			}
 			break;
 			case ACTION_RECT:

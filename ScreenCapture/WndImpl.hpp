@@ -1,15 +1,14 @@
 #ifndef  WNDIMPL_HPP
 #define  WNDIMPL_HPP
 
-class CWndImpl
-{
+class CWndImpl {
 public:
 	CWndImpl();
 	virtual ~CWndImpl();
 
 public:
 	BOOL MyRegisterClass(void);
-	virtual HWND  Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle,RectX rc);
+	virtual HWND  Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, RectX rc);
 
 	virtual void Initialize(void);
 
@@ -29,7 +28,7 @@ public:
 	LRESULT SendMessage(UINT uMsg, WPARAM wParam = 0L, LPARAM lParam = 0L);
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam = 0L, LPARAM lParam = 0L);
 
-	void SetIcon(HICON hIcon_Big,HICON hIcon_Small);
+	void SetIcon(HICON hIcon_Big, HICON hIcon_Small);
 
 	SIZE GetWindowSize(void);
 
@@ -46,7 +45,7 @@ protected:
 protected:
 	HWND    m_hWnd;
 	static  HINSTANCE m_hInstance;
-		
+
 };
 
 
