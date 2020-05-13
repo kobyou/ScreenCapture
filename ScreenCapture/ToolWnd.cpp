@@ -6,11 +6,11 @@
 #define  TBSEP_CNT 2   //工具栏分割线数
 
 
-const LPSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("文字工具 F8"), _T("矩形工具 F3"),
-                                 _T("椭圆工具 F4"), _T("箭头工具 F5"), _T("涂鸦 F6"),
-                                 _T("荧光笔 F7"), _T("撤销编辑 Ctrl+Z"), _T("恢复编辑 Ctrl+Y"),
-                                 _T("取消截图"), _T("完成截图")
-                               };
+const LPWSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("文字工具 F8"), _T("矩形工具 F3"),
+                                  _T("椭圆工具 F4"), _T("箭头工具 F5"), _T("涂鸦 F6"),
+                                  _T("荧光笔 F7"), _T("撤销编辑 Ctrl+Z"), _T("恢复编辑 Ctrl+Y"),
+                                  _T("取消截图"), _T("完成截图")
+                                };
 
 CToolWnd::CToolWnd(): CWndImpl()
 {
@@ -82,14 +82,14 @@ BOOL CToolWnd::InitTbButtonArr(void)
 
 	for(int iID = 0, iCmd = 0; iID < m_nTbBtnCnt; iID++) {
 		//此处插入分割线
-		if((iID == 2) || (iID == 8)) {
+		if((iID == 2) || (iID == 9)) {
 			TBBUTTON tbTemp = {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP};
 			m_pTbBtn[iID] = tbTemp;
 		}
 		else {
 			TBBUTTON tbTemp = {iCmd, IDM_RECAP + iCmd, TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE};
 			m_pTbBtn[iID] = tbTemp;
-			if((iID > 2) && (iID < 8)) {
+			if((iID > 2) && (iID < 9)) {
 				m_pTbBtn[iID].fsStyle = TBSTYLE_CHECK | TBSTYLE_AUTOSIZE;
 			}
 			else {

@@ -100,21 +100,21 @@ void MsgOut(const char* _Format, ...)
 		::GetModuleFileName(NULL, file, MAX_PATH);
 		if((ptrEnd = _tcsrchr(file, '\\')) != NULL) {
 			*ptrEnd = '\0';
-			_tcscat_s(file, MAX_PATH, "\\Log");
+			_tcscat_s(file, MAX_PATH, _T("\\Log"));
 			if(_access((char*)file, 0) == -1) {
 				CreateDirectory(file, NULL);
 			}
 
 			_tcscpy_s(fileName, file);
 
-			char *t2 = mctimelocal(2);
+			TCHAR *t2 = (TCHAR *)mctimelocal(2);
 			_tcscat_s(fileName, MAX_PATH, _T("\\"));
 			_tcscat_s(fileName, MAX_PATH, t2);
-			if(_access(fileName, 0) == -1) {
+			if(_access((CHAR *)fileName, 0) == -1) {
 				CreateDirectory(fileName, NULL);
 			}
 
-			char *t1 = mctimelocal(2);
+			TCHAR *t1 = (TCHAR *) mctimelocal(2);
 			_tcscat_s(fileName, MAX_PATH, _T("\\ScrShots_"));
 			_tcscat_s(fileName, MAX_PATH, t1);
 			_tcscat_s(fileName, MAX_PATH, _T(".log"));
@@ -135,10 +135,10 @@ void MsgOut(const char* _Format, ...)
 		TCHAR fileDir[MAX_PATH] = { 0 };
 		_tcscpy_s(fileDir, file);
 
-		char *t3 = mctimelocal(2);
+		TCHAR *t3 = (TCHAR*)mctimelocal(2);
 		_tcscat_s(fileDir, MAX_PATH, _T("\\"));
 		_tcscat_s(fileDir, MAX_PATH, t3);
-		if(_access(fileDir, 0) == -1) {
+		if(_access((CHAR*)fileDir, 0) == -1) {
 			flag = true;
 		}
 	}
@@ -622,18 +622,18 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 	GetLocalTime(&st);
 
 	//get user name
-	char cUser[256] = { 0 };
+	TCHAR cUser[256] = { 0 };
 	DWORD dwSize = 256;
 	GetUserName(cUser, &dwSize);
 
 	//file name
 	char fileDir[256] = { 0 };
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", cUser);
+	sprintf_s(fileDir, "C:\\Users\\%ws\\Pictures\\ScrShots", cUser);
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
 
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
+	sprintf_s(fileDir, "C:\\Users\\%ws\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
@@ -777,6 +777,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 				m_bStretching =  TRUE;
 			}
 			break;
+		case ACTION_TEXT://文字输入
 		case ACTION_RECT:
 		case ACTION_ELLIPSE:
 		case ACTION_ARROW:
@@ -792,7 +793,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 				m_pGraph = NULL;
 			}
 			m_pGraph = GraphFactory::CreateGraph(m_emAction);
-
+			MsgOut("OnLButtonDown->ACTION:%d\n", m_emAction);
 			break;
 		}
 
@@ -853,12 +854,15 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 
 				break;
 			}
+			case ACTION_TEXT://文字输入
+				break;
 			case ACTION_RECT:
 			case ACTION_ELLIPSE:
 			case ACTION_ARROW: {
 				BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 				m_pGraph->DrawGraph(m_hMemCurScrnDC, m_ptStart, ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
 				InvalidateRgn(GetSafeHwnd(), NULL, false);
+				MsgOut("OnMouseMove->ACTION:%d\n", m_emAction);
 				break;
 			}
 			case ACTION_SCRAWL:
@@ -903,13 +907,16 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 				InvalidateRgn(GetSafeHwnd(), NULL, false);
 
 				break;
+			case ACTION_TEXT: { //文字输入
+			}
+			break;
 			case ACTION_RECT:
 			case ACTION_ELLIPSE:
 			case ACTION_ARROW: {
 				m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
 				SelectObject(m_hMemDC, m_hOldGraphBMP);
 				InvalidateRgn(GetSafeHwnd(), NULL, false);
-				MsgOut("ACTION_RECT\n");
+				MsgOut("ACTION:%d\n", m_emAction);
 				break;
 			}
 

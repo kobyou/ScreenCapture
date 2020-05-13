@@ -13,17 +13,16 @@ void GraphRectangle::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidt
 	HBRUSH hBrush = CreateBrushIndirect(&LogBrush);
 	HBRUSH hOldbrush = (HBRUSH)::SelectObject(hDC, hBrush);
 
-	RectX rcGraph(ptStart,ptEnd);
+	RectX rcGraph(ptStart, ptEnd);
 	rcGraph.ResetStartEnd();
-	if(rcGraph.OutOfBoundary(rcRgn))
-	{
+	if(rcGraph.OutOfBoundary(rcRgn)) {
 		rcGraph.ResetBoundary(rcRgn);
 	}
 
-	RectangleX(hDC,rcGraph);
+	RectangleX(hDC, rcGraph);
 
-	SelectObject(hDC,hOldPen);
-	SelectObject(hDC,hOldbrush);
+	SelectObject(hDC, hOldPen);
+	SelectObject(hDC, hOldbrush);
 	DeleteObject(hPen);
 	DeleteObject(hBrush);
 }
@@ -38,90 +37,76 @@ void GraphEllipse::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth,
 	HBRUSH hBrush = CreateBrushIndirect(&LogBrush);
 	HBRUSH hOldbrush = (HBRUSH)::SelectObject(hDC, hBrush);
 
-	RectX rcGraph(ptStart,ptEnd);
+	RectX rcGraph(ptStart, ptEnd);
 	rcGraph.ResetStartEnd();
-	if(rcGraph.OutOfBoundary(rcRgn))
-	{
+	if(rcGraph.OutOfBoundary(rcRgn)) {
 		rcGraph.ResetBoundary(rcRgn);
 	}
 
-	EllipseX(hDC,rcGraph);
+	EllipseX(hDC, rcGraph);
 
-	SelectObject(hDC,hOldPen);
-	SelectObject(hDC,hOldbrush);
+	SelectObject(hDC, hOldPen);
+	SelectObject(hDC, hOldbrush);
 	DeleteObject(hPen);
 	DeleteObject(hBrush);
 }
 
 void GraphArrowLine::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)
 {
-	ptEnd.x = ptEnd.x < rcRgn.leftX ? rcRgn.leftX:ptEnd.x;
-	ptEnd.x = ptEnd.x > rcRgn.rightX ? rcRgn.rightX:ptEnd.x;
-	ptEnd.y = ptEnd.y < rcRgn.topX ? rcRgn.topX:ptEnd.y;
-	ptEnd.y = ptEnd.y > rcRgn.bottomX ? rcRgn.bottomX:ptEnd.y;
+	ptEnd.x = ptEnd.x < rcRgn.leftX ? rcRgn.leftX : ptEnd.x;
+	ptEnd.x = ptEnd.x > rcRgn.rightX ? rcRgn.rightX : ptEnd.x;
+	ptEnd.y = ptEnd.y < rcRgn.topX ? rcRgn.topX : ptEnd.y;
+	ptEnd.y = ptEnd.y > rcRgn.bottomX ? rcRgn.bottomX : ptEnd.y;
 
 	double xAngleLine = 0;
-	if (ptStart.x == ptEnd.x)
+	if(ptStart.x == ptEnd.x)
 		xAngleLine = PI / 2;
-	else
-	{
+	else {
 		xAngleLine = atan((double(ptEnd.y) - double(ptStart.y)) / (double(ptEnd.x) - double(ptStart.x)));
 	}
 	POINT ptLineLeft;
-	if (ptStart.x > ptEnd.x)
-	{
-		ptLineLeft.x = long(ptEnd.x + cos(xAngleLine + PI/8) * 11.0);
-		ptLineLeft.y = long(ptEnd.y + sin(xAngleLine + PI/8) * 11.0);
+	if(ptStart.x > ptEnd.x) {
+		ptLineLeft.x = long(ptEnd.x + cos(xAngleLine + PI / 8) * 11.0);
+		ptLineLeft.y = long(ptEnd.y + sin(xAngleLine + PI / 8) * 11.0);
 	}
-	else if (ptStart.x == ptEnd.x)
-	{
-		if (ptStart.y > ptEnd.y)
-		{
-			ptLineLeft.x = long(ptEnd.x + cos(xAngleLine + PI/8) * 11.0);
-			ptLineLeft.y = long(ptEnd.y + sin(xAngleLine + PI/8) * 11.0);
+	else if(ptStart.x == ptEnd.x) {
+		if(ptStart.y > ptEnd.y) {
+			ptLineLeft.x = long(ptEnd.x + cos(xAngleLine + PI / 8) * 11.0);
+			ptLineLeft.y = long(ptEnd.y + sin(xAngleLine + PI / 8) * 11.0);
 		}
-		else if (ptStart.y == ptEnd.y)
-		{
+		else if(ptStart.y == ptEnd.y) {
 			return ;
 		}
-		else
-		{
-			ptLineLeft.x = long(ptEnd.x - cos(xAngleLine + PI/8) * 11.0);
-			ptLineLeft.y = long(ptEnd.y - sin(xAngleLine + PI/8) * 11.0);
+		else {
+			ptLineLeft.x = long(ptEnd.x - cos(xAngleLine + PI / 8) * 11.0);
+			ptLineLeft.y = long(ptEnd.y - sin(xAngleLine + PI / 8) * 11.0);
 		}
 	}
-	else
-	{
-		ptLineLeft.x = long(ptEnd.x - cos(xAngleLine + PI/8) * 11.0);
-		ptLineLeft.y = long(ptEnd.y - sin(xAngleLine + PI/8) * 11.0);
+	else {
+		ptLineLeft.x = long(ptEnd.x - cos(xAngleLine + PI / 8) * 11.0);
+		ptLineLeft.y = long(ptEnd.y - sin(xAngleLine + PI / 8) * 11.0);
 	}
 	POINT ptLineRight;
-	if (ptStart.x > ptEnd.x)
-	{
-		ptLineRight.x = long(ptEnd.x + cos(xAngleLine - PI/8) * 11.0);
-		ptLineRight.y = long(ptEnd.y + sin(xAngleLine - PI/8) * 11.0);
+	if(ptStart.x > ptEnd.x) {
+		ptLineRight.x = long(ptEnd.x + cos(xAngleLine - PI / 8) * 11.0);
+		ptLineRight.y = long(ptEnd.y + sin(xAngleLine - PI / 8) * 11.0);
 	}
-	else if (ptStart.x == ptEnd.x)
-	{
-		if (ptStart.y > ptEnd.y)
-		{
-			ptLineRight.x = long(ptEnd.x + cos(xAngleLine - PI/8) * 11.0);
-			ptLineRight.y = long(ptEnd.y + sin(xAngleLine - PI/8) * 11.0);
+	else if(ptStart.x == ptEnd.x) {
+		if(ptStart.y > ptEnd.y) {
+			ptLineRight.x = long(ptEnd.x + cos(xAngleLine - PI / 8) * 11.0);
+			ptLineRight.y = long(ptEnd.y + sin(xAngleLine - PI / 8) * 11.0);
 		}
-		else if (ptStart.y > ptEnd.y)
-		{
+		else if(ptStart.y > ptEnd.y) {
 			return ;
 		}
-		else
-		{
-			ptLineRight.x = long(ptEnd.x - cos(xAngleLine - PI/8) * 11.0);
-			ptLineRight.y = long(ptEnd.y - sin(xAngleLine - PI/8) * 11.0);
+		else {
+			ptLineRight.x = long(ptEnd.x - cos(xAngleLine - PI / 8) * 11.0);
+			ptLineRight.y = long(ptEnd.y - sin(xAngleLine - PI / 8) * 11.0);
 		}
 	}
-	else
-	{
-		ptLineRight.x = long(ptEnd.x - cos(xAngleLine - PI/8) * 11.0);
-		ptLineRight.y = long(ptEnd.y - sin(xAngleLine - PI/8) * 11.0);
+	else {
+		ptLineRight.x = long(ptEnd.x - cos(xAngleLine - PI / 8) * 11.0);
+		ptLineRight.y = long(ptEnd.y - sin(xAngleLine - PI / 8) * 11.0);
 	}
 	HPEN hPen = ::CreatePen(PS_SOLID, nPenWidth, dwPenColor);
 	LOGBRUSH logBrush;
@@ -156,16 +141,16 @@ void GraphScrawl::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, 
 }
 
 void GraphHighlight::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)
-{	
+{
 	HPEN hPen = CreatePen(PS_SOLID, nPenWidth, dwPenColor);
 	HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
 
-	int hOldROP = SetROP2(hDC,R2_MASKPEN); //Ó«¹â±Ê
+	int hOldROP = SetROP2(hDC, R2_MASKPEN); //Ó«¹â±Ê
 
 	MoveToEx(hDC, ptStart.x, ptStart.y, NULL);
 	LineTo(hDC, ptEnd.x, ptEnd.y);
 
-	::SetROP2(hDC,hOldROP);
+	::SetROP2(hDC, hOldROP);
 
 	::SelectObject(hDC, hOldPen);
 	::DeleteObject(hPen);
@@ -174,25 +159,27 @@ void GraphHighlight::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidt
 IGraph* GraphFactory::CreateGraph(int graphID)
 {
 	IGraph* pGraph = NULL;
-	switch(graphID)
-	{
-	default:
-		break;
-	case 2:
-		pGraph = new GraphRectangle();
-		break;
-	case 3:
-		pGraph = new GraphEllipse();
-		break;
-	case 4:
-		pGraph = new GraphArrowLine();
-		break;
-	case 5:
-		pGraph = new GraphScrawl();
-		break;
-	case 6:
-		pGraph = new GraphHighlight();
-		break;
+	switch(graphID) {
+		default:
+			break;
+		case 2:
+			//pGraph = new GraphRectangle();
+			break;
+		case 3:
+			pGraph = new GraphRectangle();
+			break;
+		case 4:
+			pGraph = new GraphEllipse();
+			break;
+		case 5:
+			pGraph = new GraphArrowLine();
+			break;
+		case 6:
+			pGraph = new GraphScrawl();
+			break;
+		case 7:
+			pGraph = new GraphHighlight();
+			break;
 	}
 
 	return pGraph;
