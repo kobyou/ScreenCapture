@@ -9,7 +9,25 @@ static const UINT8 DEBUG_MODE_MESSAGE = 1;
 static UINT8 debugMode = DEBUG_MODE_MESSAGE;
 static int LogSaveDays = 90;
 
+static wchar_t * char2wchar(const char* cchar)
+{
+	wchar_t *wchar;
+	int len = MultiByteToWideChar(CP_ACP, 0, cchar, strlen(cchar), NULL, 0);
+	wchar = new wchar_t[len + 1];
+	MultiByteToWideChar(CP_ACP, 0, cchar, strlen(cchar), wchar, len);
+	wchar[len] = '\0';
+	return wchar;
+}
 
+char * wchar2char(const wchar_t* wchar)
+{
+	char * CChar;
+	int len = WideCharToMultiByte(CP_ACP, 0, wchar, wcslen(wchar), NULL, 0, NULL, NULL);
+	CChar = new char[len + 1];
+	WideCharToMultiByte(CP_ACP, 0, wchar, wcslen(wchar), CChar, len, NULL, NULL);
+	CChar[len] = '\0';
+	return CChar;
+}
 static void SetLogSaveDays(int days)
 {
 	LogSaveDays = days;
@@ -45,7 +63,7 @@ static std::string format(const char * _Format, ...)
 	return tmp.c_str();
 }
 
-static char *mctimelocal(BYTE mode)
+static TCHAR *mctimelocal(BYTE mode)
 {
 	SYSTEMTIME tm;
 	static char strtime[29];
@@ -78,8 +96,9 @@ static char *mctimelocal(BYTE mode)
 		            tm.wDay
 		           );
 	}
-	return strtime;
+	return char2wchar(strtime);
 }
+
 
 
 void MsgOut(const char* _Format, ...)
@@ -134,15 +153,14 @@ void MsgOut(const char* _Format, ...)
 		TCHAR fileDir[MAX_PATH] = { 0 };
 		_tcscpy_s(fileDir, file);
 
-		TCHAR *t3 = (TCHAR*)mctimelocal(2);
 		_tcscat_s(fileDir, MAX_PATH, _T("\\"));
-		_tcscat_s(fileDir, MAX_PATH, t3);
+		_tcscat_s(fileDir, MAX_PATH, mctimelocal(2));
 		if(_access((CHAR*)fileDir, 0) == -1) {
 			flag = true;
 		}
 	}
 
-	char *strtime = mctimelocal(0);
+	TCHAR *strtime = mctimelocal(0);
 	//printf(strtime);
 
 	va_list vArgList;
@@ -153,8 +171,8 @@ void MsgOut(const char* _Format, ...)
 	//printf(str_tmp);
 
 	if(debugMode == DEBUG_MODE_MESSAGE) {
-		WriteFile((HANDLE)FileHandle, strtime, strlen(strtime), &wrote, NULL);
-		WriteFile((HANDLE)FileHandle, str_tmp, strlen(str_tmp), &wrote, NULL);
+		WriteFile((HANDLE)FileHandle, wchar2char(strtime), strlen(wchar2char(strtime)), &wrote, NULL);
+		WriteFile((HANDLE)FileHandle, str_tmp, strlen((str_tmp)), &wrote, NULL);
 	}
 }
 
@@ -181,10 +199,12 @@ CScrnCapWnd::CScrnCapWnd()
 
 	m_pColorWnd = NULL;
 
+	m_rcTxtSel = ZERO_RC;
+	//m_pEditWnd = NULL;
+	m_bInputText = FALSE;
+
 	m_nPenWidth = 1;
 	m_dwPenColor = RGB(255, 0, 0);
-
-	m_hEditWnd = NULL;
 }
 
 CScrnCapWnd::~CScrnCapWnd()
@@ -201,6 +221,9 @@ CScrnCapWnd::~CScrnCapWnd()
 	if(NULL != m_pColorWnd) {
 		m_pColorWnd = NULL;
 	}
+	//if(NULL != m_pEditWnd) {
+	//	m_pEditWnd = NULL;
+	//}
 }
 
 void CScrnCapWnd::Initialize()
@@ -213,6 +236,26 @@ void CScrnCapWnd::Initialize()
 LPCTSTR CScrnCapWnd::GetWindowClassName() const
 {
 	return _T("CScrnCapWnd");
+}
+
+void CScrnCapWnd::CreateEditWnd(RectX rc)
+{
+	//if(NULL != m_pEditWnd) {
+	//	if(!::IsWindow(m_pEditWnd->GetSafeHwnd())) {
+	//		delete m_pEditWnd;
+	//		m_pEditWnd = NULL;
+	//	}
+	//}
+	//else {
+	//	m_pEditWnd = new CEditWnd();
+	//	m_pEditWnd->CreateEditWnd(GetSafeHwnd(),  rc);
+	//}
+
+
+	DrawRect(m_hMemPaintDC, rc, 1, PS_DASH);
+	DrawAdjustSquare(m_hMemPaintDC, rc, 2);
+	//MoveWindow(m_pEditWnd->GetSafeHwnd(), rc.leftX - 1, rc.topX + 1, rc.GetW() - 2, rc.GetH() - 2, FALSE);
+	//ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_SHOW);
 }
 
 void CScrnCapWnd::CreateToolWnd()
@@ -400,6 +443,40 @@ BOOL CScrnCapWnd::Adjust(int cxOffset, int cyOffset)
 			Drag_Adjust(m_rcChoosing, cxOffset, cyOffset);
 			m_rcSel = m_rcChoosing;
 			m_rcSel.ResetStartEnd();
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+BOOL CScrnCapWnd::AdjustTxt(int cxOffset, int cyOffset)
+{
+	//拉伸
+	if(m_bStretching) {
+		Stretch_Adjust(m_emStrech, m_rcChoosing, cxOffset, cyOffset);
+
+		m_rcTxtSel = m_rcChoosing;
+		m_rcTxtSel.ResetStartEnd();
+
+		if(m_rcTxtSel.leftX == m_rcSel.rightX) {
+			m_rcTxtSel.rightX++;
+		}
+		if(m_rcTxtSel.topX == m_rcSel.bottomX) {
+			m_rcTxtSel.bottomX++;
+		}
+
+
+		return TRUE;
+	}
+	else {
+		//拖拽
+		if(m_rcTxtSel.PtInRectX(m_ptMoving)) {
+			m_rcChoosing = m_rcTxtSel;
+			Drag_Adjust(m_rcChoosing, cxOffset, cyOffset);
+			m_rcTxtSel = m_rcChoosing;
+			m_rcTxtSel.ResetStartEnd();
 
 			return TRUE;
 		}
@@ -629,12 +706,12 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 
 	//file name
 	char fileDir[256] = { 0 };
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", cUser);
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", wchar2char(cUser));
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
 
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", cUser, st.wYear, st.wMonth, st.wDay);
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", wchar2char(cUser), st.wYear, st.wMonth, st.wDay);
 	if(_access(fileDir, 0) != 0) {
 		_mkdir(fileDir);
 	}
@@ -744,6 +821,9 @@ LRESULT CScrnCapWnd::OnPaint(WPARAM wParam, LPARAM lParam)
 			DrawRect(m_hMemPaintDC, m_rcSel, 5, PS_SOLID);
 		}
 		else {
+			if(ACTION_TEXT == m_emAction) {
+				CreateEditWnd(m_rcTxtSel);
+			}
 			DrawRect(m_hMemPaintDC, m_rcSel, 1, PS_DASH);
 			DrawAdjustSquare(m_hMemPaintDC, m_rcSel, 2);
 		}
@@ -778,7 +858,20 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 				m_bStretching =  TRUE;
 			}
 			break;
-		case ACTION_TEXT://文字输入
+		case ACTION_TEXT:
+			if(!m_bInputText) {
+				//文字输入
+				m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
+				m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP); //绘画
+				BitBltEx(m_hMemDC, SCREEN_RC, m_hMemCurScrnDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
+
+				if(NULL != m_pGraph) {
+					delete m_pGraph;
+					m_pGraph = NULL;
+				}
+				m_pGraph = GraphFactory::CreateGraph(m_emAction);
+			}
+			break;
 		case ACTION_RECT:
 		case ACTION_ELLIPSE:
 		case ACTION_ARROW:
@@ -855,8 +948,25 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 
 				break;
 			}
-			case ACTION_TEXT://文字输入
-				break;
+			case ACTION_TEXT: { //文字输入
+				//计算鼠标偏移位置
+				int xOffset = ptParam.x - m_ptMoving.x;
+				int yOffset = ptParam.y - m_ptMoving.y;
+				CString msg;
+				msg.Format(_T("xOffset:%d,yOffset:%d"), xOffset, yOffset);
+				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
+				//调整
+				if(AdjustTxt(xOffset, yOffset)) {
+					MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
+					m_ptMoving = ptParam;
+
+					//AdjustToolPos();会有闪屏
+
+					ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
+					InvalidateRgn(GetSafeHwnd(), NULL, false);
+				}
+			}
+			break;
 			case ACTION_RECT:
 			case ACTION_ELLIPSE:
 			case ACTION_ARROW: {
@@ -908,6 +1018,25 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 
 				break;
 			case ACTION_TEXT: { //文字输入
+				if(!m_bInputText) {
+					m_bInputText = TRUE;
+					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 21);
+					m_rcTxtSel = rc;
+					m_rcTxtSel.ResetStartEnd();
+					m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
+					SelectObject(m_hMemDC, m_hOldGraphBMP);
+					InvalidateRgn(GetSafeHwnd(), NULL, false);
+				}
+				else {
+					//写文字
+					if(!m_rcTxtSel.PtInRectX(ptParam)) {
+						m_bInputText = FALSE;
+						//MessageBox(GetSafeHwnd(), TEXT("0"), TEXT("0"), 0);
+						BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
+						m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
+						InvalidateRgn(GetSafeHwnd(), NULL, false);
+					}
+				}
 			}
 			break;
 			case ACTION_RECT:
@@ -1602,7 +1731,7 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 			default:
 				break;
 			case ACTION_ADJUST:
-				m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL);
+				m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
 				break;
 			case ACTION_RECT:
 			case ACTION_ELLIPSE:
@@ -1612,7 +1741,18 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 				m_hCursor = ::LoadCursor(NULL, IDC_CROSS);
 				break;
 			case ACTION_TEXT:
-				m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
+				if(!m_bInputText) {
+					m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
+				}
+				else {
+					if(GetStrechDrct(m_rcTxtSel, ptCurPos) != STRETCH_NO) {
+						m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
+					}
+					else {
+						m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
+					}
+				}
+
 				break;
 		}
 
@@ -1628,6 +1768,7 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 	if(m_hCursor == NULL) {
 		m_hCursor = LoadCursor(GetInstance(), MAKEINTRESOURCE(IDC_CURSOR_COLORFUL));
 	}
+
 	if(ACTION_ADJUST == m_emAction) {
 		SetStretchCursor(rcCursorLie, ptCurPos, emStretch);
 	}

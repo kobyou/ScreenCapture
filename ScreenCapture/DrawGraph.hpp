@@ -3,8 +3,7 @@
 
 #include "stdafx.h"
 
-class IGraph
-{
+class IGraph {
 public:
 	IGraph()
 	{
@@ -18,8 +17,21 @@ public:
 	virtual void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC) = 0;
 };
 
-class GraphRectangle : public IGraph
-{
+class GraphText : public IGraph {
+public:
+	GraphText()
+	{
+
+	}
+	~GraphText()
+	{
+
+	}
+public:
+	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
+};
+
+class GraphRectangle : public IGraph {
 public:
 	GraphRectangle()
 	{
@@ -30,11 +42,10 @@ public:
 
 	}
 public:
-	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor,const RectX& rcRgn = SCREEN_RC);
+	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 
-class GraphEllipse : public IGraph
-{
+class GraphEllipse : public IGraph {
 public:
 	GraphEllipse()
 	{
@@ -48,8 +59,7 @@ public:
 	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 
-class GraphArrowLine : public IGraph
-{
+class GraphArrowLine : public IGraph {
 public:
 	GraphArrowLine()
 	{
@@ -63,8 +73,7 @@ public:
 	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 
-class GraphScrawl : public IGraph
-{
+class GraphScrawl : public IGraph {
 public:
 	GraphScrawl()
 	{
@@ -78,8 +87,7 @@ public:
 	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 
-class GraphHighlight : public IGraph
-{
+class GraphHighlight : public IGraph {
 public:
 	GraphHighlight()
 	{
@@ -93,8 +101,7 @@ public:
 	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 
-class GraphFactory
-{
+class GraphFactory {
 public:
 	GraphFactory()
 	{
