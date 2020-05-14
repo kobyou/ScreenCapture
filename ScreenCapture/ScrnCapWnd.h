@@ -5,6 +5,7 @@
 #include "DrawGraph.hpp"
 #include "ToolWnd.h"
 #include "GlobalAPI.h"
+#include "EditWnd.h"
 
 void MsgOut(const char* _Format, ...);
 
@@ -79,6 +80,8 @@ public:
 public:
 	void InitializeDC(void);
 
+	// @brief  创建文本输入编辑框
+	void CreateEditWnd(RectX rc);
 	// @brief  创建截屏工具栏
 	void CreateToolWnd(void);
 	// @brief  创建颜色选择框
@@ -90,6 +93,9 @@ public:
 	void Stretch_Adjust(const STRETCH& emStretch, RectX& rcStretch, int cxOffset, int cyOffset);
 	void Drag_Adjust(RectX& rcDrag, int cxOffset, int cyOffset);
 	BOOL Adjust(int cxOffset, int cyOffset);
+
+	// @brief  调整文字输入区域
+	BOOL AdjustTxt(int cxOffset, int cyOffset);
 
 	// @brief  调整截屏工具栏位置
 	void AdjustToolPos(void);
@@ -200,6 +206,10 @@ private:
 	IGraph *m_pGraph;
 	CToolWnd* m_pToolWnd;
 	CColorWnd* m_pColorWnd;
+
+	RectX m_rcTxtSel;       //已选文字区域（文字输入过程中始终为标准矩形）
+	CEditWnd * m_pEditWnd;
+	BOOL m_bInputText;
 
 	int m_nPenWidth;
 	COLORREF m_dwPenColor;

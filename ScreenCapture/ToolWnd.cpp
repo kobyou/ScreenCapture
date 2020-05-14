@@ -6,11 +6,11 @@
 #define  TBSEP_CNT 2   //工具栏分割线数
 
 
-const LPSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("文字工具 F8"), _T("矩形工具 F3"),
-                                 _T("椭圆工具 F4"), _T("箭头工具 F5"), _T("涂鸦 F6"),
-                                 _T("荧光笔 F7"), _T("撤销编辑 Ctrl+Z"), _T("恢复编辑 Ctrl+Y"),
-                                 _T("取消截图"), _T("完成截图")
-                               };
+const LPWSTR  BUTTONNAMEARR[] = { _T("重新截图 F1"), _T("保存截图 F2"), _T("文字工具 F8"), _T("矩形工具 F3"),
+                                  _T("椭圆工具 F4"), _T("箭头工具 F5"), _T("涂鸦 F6"),
+                                  _T("荧光笔 F7"), _T("撤销编辑 Ctrl+Z"), _T("恢复编辑 Ctrl+Y"),
+                                  _T("取消截图"), _T("完成截图")
+                                };
 
 CToolWnd::CToolWnd(): CWndImpl()
 {
