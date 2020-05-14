@@ -12,7 +12,7 @@ const RectX ZERO_RC(ZERO_PT, ZERO_PT);
 const RectX TOOLWND_RC(0, 0, 341, 28);  //工具栏窗口大小
 const RectX TOOLBAR_RC(1, 1, 340, 27);  //工具栏大小
 const RectX COLORWND_RC(0, 0, 240, 34); //颜色选择框
-
+const RectX EDITWND_RC(0, 0, 140, 28);  //工具栏窗口大小
 //RGB
 const DWORD COLOR_SCRAWL = RGB(50, 150, 255);
 const DWORD COLOR_RCSEL  = RGB(51, 153, 255);

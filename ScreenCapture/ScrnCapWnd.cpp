@@ -183,6 +183,8 @@ CScrnCapWnd::CScrnCapWnd()
 
 	m_nPenWidth = 1;
 	m_dwPenColor = RGB(255, 0, 0);
+
+	m_hEditWnd = NULL;
 }
 
 CScrnCapWnd::~CScrnCapWnd()
@@ -906,13 +908,6 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 
 				break;
 			case ACTION_TEXT: { //文字输入
-				RectX rect(m_ptStart.x, m_ptStart.y, m_ptStart.x + 100, m_ptStart.y + 20);
-				//DrawRect(m_hMemCurScrnDC, m_rcText, 1, PS_DASH);
-				//DrawAdjustSquare(m_hMemCurScrnDC, m_rcText, 2);
-
-				//m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
-				//SelectObject(m_hMemDC, m_hOldGraphBMP);
-				//InvalidateRgn(GetSafeHwnd(), NULL, false);
 			}
 			break;
 			case ACTION_RECT:
