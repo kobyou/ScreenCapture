@@ -120,7 +120,7 @@ public:
 
 	}
 public:
-	static IGraph* CreateGraph(int graphID, CString str = "");
+	static IGraph* CreateGraph(int graphID, CString str = _T(""));
 };
 
 

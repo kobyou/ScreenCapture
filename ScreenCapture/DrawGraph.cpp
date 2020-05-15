@@ -26,7 +26,9 @@ void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, CO
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
 	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境
-	TextOutW(hDC, ptStart.x, ptStart.y, m_strText, wcslen(m_strText));//使用当前字体输出文本
+	//TextOutW(hDC, ptStart.x, ptStart.y, m_strText, wcslen(m_strText));//使用当前字体输出文本
+	RectX rcTx(ptStart, ptEnd);
+	DrawTextEx(hDC, m_strText, rcTx, DT_LEFT);
 	DeleteObject(hFont);
 }
 
