@@ -5,22 +5,24 @@ using namespace GlobalAPI;
 
 void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)
 {
-	HFONT  hFont = CreateFont(        //创建一个自定义字体
-	                   12,             //字体的高度（字体大小）
-	                   0,              //由系统根据高宽比选取字体最佳宽度值
-	                   0,              //文本的倾斜度为0，表示水平
-	                   0,              //字体的倾斜度为0
-	                   FW_NORMAL,      //字体的粗度，FW_NORMAL为正常  FW_HEAVY为最粗
-	                   0,              //非斜体字
-	                   0,              //无下划线
-	                   0,              //无删除线
-	                   GB2312_CHARSET, //表示所用的字符集为ANSI_CHARSET
-	                   OUT_DEFAULT_PRECIS, //输出精度为缺省精度
-	                   CLIP_DEFAULT_PRECIS,    //剪裁精度为缺省精度
-	                   DEFAULT_QUALITY,        //输出质量为缺省值
-	                   DEFAULT_PITCH | FF_DONTCARE,//字间距和字体系列使用缺省值
-	                   L"Arial"             //字体名称
-	               );
+	//HFONT  hFont = CreateFont(        //创建一个自定义字体
+	//                   15,             //字体的高度（字体大小）
+	//                   0,              //由系统根据高宽比选取字体最佳宽度值
+	//                   0,              //文本的倾斜度为0，表示水平
+	//                   0,              //字体的倾斜度为0
+	//                   FW_NORMAL,      //字体的粗度，FW_NORMAL为正常  FW_HEAVY为最粗
+	//                   0,              //非斜体字
+	//                   0,              //无下划线
+	//                   0,              //无删除线
+	//                   GB2312_CHARSET, //表示所用的字符集为ANSI_CHARSET
+	//                   OUT_DEFAULT_PRECIS, //输出精度为缺省精度
+	//                   CLIP_DEFAULT_PRECIS,    //剪裁精度为缺省精度
+	//                   DEFAULT_QUALITY,        //输出质量为缺省值
+	//                   DEFAULT_PITCH | FF_DONTCARE,//字间距和字体系列使用缺省值
+	//                   L"仿体"             //字体名称
+	//               );
+	HFONT hFont = CreateFont(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("仿体"));
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
 	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境

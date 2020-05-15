@@ -365,6 +365,11 @@ void CScrnCapWnd::PaintSelRgn()
 
 void CScrnCapWnd::Undo()
 {
+	if((m_emAction == ACTION_TEXT) && m_bInputText) {
+		m_bInputText = FALSE;
+		InvalidateRgn(GetSafeHwnd(), NULL, false);
+	}
+
 	if(m_stackUndoGraph.empty()) {
 		m_emAction = ACTION_CHOOSING;
 		m_rcSel = m_rcChoosing = RectX();
@@ -655,6 +660,10 @@ LRESULT CScrnCapWnd::OnPaint(WPARAM wParam, LPARAM lParam)
 			}
 			DrawRect(m_hMemPaintDC, m_rcSel, 1, PS_DASH);
 			DrawAdjustSquare(m_hMemPaintDC, m_rcSel, 2);
+		}
+
+		if(ACTION_TEXT != m_emAction) {
+			ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
 		}
 
 		//显示已选区域尺寸W×H
