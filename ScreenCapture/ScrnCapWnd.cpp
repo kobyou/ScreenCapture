@@ -697,18 +697,18 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case ACTION_TEXT:
-			if(!m_bInputText) {
-				//文字输入
-				m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
-				m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP); //绘画
-				BitBltEx(m_hMemDC, SCREEN_RC, m_hMemCurScrnDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
+			//if(!m_bInputText) {
+			//	//文字输入
+			//	m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
+			//	m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP); //绘画
+			//	BitBltEx(m_hMemDC, SCREEN_RC, m_hMemCurScrnDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 
-				if(NULL != m_pGraph) {
-					delete m_pGraph;
-					m_pGraph = NULL;
-				}
-				m_pGraph = GraphFactory::CreateGraph(m_emAction);
-			}
+			//	if(NULL != m_pGraph) {
+			//		delete m_pGraph;
+			//		m_pGraph = NULL;
+			//	}
+			//	m_pGraph = GraphFactory::CreateGraph(m_emAction);
+			//}
 			break;
 		case ACTION_RECT:
 		case ACTION_ELLIPSE:
@@ -859,10 +859,9 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 				if(!m_rcTxtSel.PtInRectX(ptParam) && m_bInputText) {
 					m_bInputText = FALSE;
 
-					if(NULL != m_pGraph) {
-						delete m_pGraph;
-						m_pGraph = NULL;
-					}
+					m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
+					m_hOldGraphBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGraphBMP); //绘画
+					BitBltEx(m_hMemDC, SCREEN_RC, m_hMemCurScrnDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 
 					CString str;
 					GetWindowText(m_pEditWnd->GetSafeHwnd(), str.GetBuffer(), 255);
@@ -870,42 +869,49 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 					SetWindowText(m_pEditWnd->GetSafeHwnd(), _T(""));
 					//MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
 
+					if(NULL != m_pGraph) {
+						delete m_pGraph;
+						m_pGraph = NULL;
+					}
 					m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
+
 					BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 					m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
+
+					m_stackUndoGraph.push(m_hGraphBMP);
+					SelectObject(m_hMemDC, m_hOldGraphBMP);
 					InvalidateRgn(GetSafeHwnd(), NULL, false);
 				}
 
 				if(!m_bInputText) {
-					m_bInputText = TRUE;
-					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 21);
-					m_rcTxtSel = rc;
-					m_rcTxtSel.ResetStartEnd();
-					m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
-					SelectObject(m_hMemDC, m_hOldGraphBMP);
-					InvalidateRgn(GetSafeHwnd(), NULL, false);
+					if(m_rcSel.PtInRectX(m_ptStart)) {
+						m_bInputText = TRUE;
+						RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 21);
+
+						m_rcTxtSel = rc;
+						m_rcTxtSel.ResetStartEnd();
+						//文字框不能超出所选区域范围
+						if(m_rcTxtSel.rightX > m_rcSel.rightX) {
+							m_rcTxtSel.rightX = m_rcSel.rightX;
+						}
+
+						if(m_rcTxtSel.bottomX > m_rcSel.bottomX) {
+							m_rcTxtSel.bottomX = m_rcSel.bottomX;
+							m_rcTxtSel.topX = m_rcTxtSel.bottomX - 21;
+						}
+
+						if(m_rcTxtSel.topX < m_rcSel.topX) {
+							m_rcTxtSel.topX = m_rcSel.topX;
+						}
+
+						if(m_rcTxtSel.leftX < m_rcSel.leftX) {
+							m_rcTxtSel.leftX = m_rcSel.leftX;
+						}
+
+						SelectObject(m_hMemDC, m_hOldGraphBMP);
+						InvalidateRgn(GetSafeHwnd(), NULL, false);
+					}
 				}
-				//else {
-				//	//写文字
-				//	if(!m_rcTxtSel.PtInRectX(ptParam)) {
-				//		m_bInputText = FALSE;
-				//		////MessageBox(GetSafeHwnd(), TEXT("0"), TEXT("0"), 0);
-
-				//		//if(NULL != m_pGraph) {
-				//		//	delete m_pGraph;
-				//		//	m_pGraph = NULL;
-				//		//}
-
-				//		//CString str;
-				//		//GetWindowText(m_pEditWnd->GetSafeHwnd(), str.GetBuffer(), 255);
-				//		//MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
-
-				//		//m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
-				//		//BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
-				//		//m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
-				//		//InvalidateRgn(GetSafeHwnd(), NULL, false);
-				//	}
-				//}
 			}
 			break;
 			case ACTION_RECT:
