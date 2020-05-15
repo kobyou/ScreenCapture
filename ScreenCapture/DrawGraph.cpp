@@ -5,7 +5,11 @@ using namespace GlobalAPI;
 
 void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)
 {
+<<<<<<< HEAD
+	//CString str(_T("Hello world..."));
+=======
 	CString str(_T("Hello world..."));
+>>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 	HFONT  hFont = CreateFont(        //创建一个自定义字体
 	                   20,             //字体的高度（字体大小）
 	                   0,              //由系统根据高宽比选取字体最佳宽度值
@@ -25,7 +29,11 @@ void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, CO
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
 	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境
+<<<<<<< HEAD
+	TextOutW(hDC, ptStart.x, ptStart.y, m_strText, wcslen(m_strText));//使用当前字体输出文本
+=======
 	TextOutW(hDC, ptStart.x, ptStart.y, str, wcslen(str));//使用当前字体输出文本
+>>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 
 	DeleteObject(hFont);
 
@@ -204,14 +212,18 @@ void GraphHighlight::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidt
 	::DeleteObject(hPen);
 }
 
-IGraph* GraphFactory::CreateGraph(int graphID)
+IGraph* GraphFactory::CreateGraph(int graphID, CString str)
 {
 	IGraph* pGraph = NULL;
 	switch(graphID) {
 		default:
 			break;
 		case 2:
+<<<<<<< HEAD
+			pGraph = new GraphText(str);
+=======
 			pGraph = new GraphText();
+>>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 			break;
 		case 3:
 			pGraph = new GraphRectangle();
