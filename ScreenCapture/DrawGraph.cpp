@@ -5,11 +5,8 @@ using namespace GlobalAPI;
 
 void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)
 {
-
-	//CString str(_T("Hello world..."));
-	CString str(_T("Hello world..."));
 	HFONT  hFont = CreateFont(        //创建一个自定义字体
-	                   20,             //字体的高度（字体大小）
+	                   12,             //字体的高度（字体大小）
 	                   0,              //由系统根据高宽比选取字体最佳宽度值
 	                   0,              //文本的倾斜度为0，表示水平
 	                   0,              //字体的倾斜度为0
@@ -22,38 +19,13 @@ void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, CO
 	                   CLIP_DEFAULT_PRECIS,    //剪裁精度为缺省精度
 	                   DEFAULT_QUALITY,        //输出质量为缺省值
 	                   DEFAULT_PITCH | FF_DONTCARE,//字间距和字体系列使用缺省值
-	                   L"宋体"             //字体名称
+	                   L"Arial"             //字体名称
 	               );
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
 	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境
-
 	TextOutW(hDC, ptStart.x, ptStart.y, m_strText, wcslen(m_strText));//使用当前字体输出文本
-
-	TextOutW(hDC, ptStart.x, ptStart.y, str, wcslen(str));//使用当前字体输出文本
-
 	DeleteObject(hFont);
-
-	//HPEN hPen = CreatePen(PS_SOLID, nPenWidth, dwPenColor);
-	//HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
-
-	//LOGBRUSH  LogBrush;
-	//LogBrush.lbStyle = BS_NULL;
-	//HBRUSH hBrush = CreateBrushIndirect(&LogBrush);
-	//HBRUSH hOldbrush = (HBRUSH)::SelectObject(hDC, hBrush);
-
-	//RectX rcGraph(ptStart, ptEnd);
-	//rcGraph.ResetStartEnd();
-	//if(rcGraph.OutOfBoundary(rcRgn)) {
-	//	rcGraph.ResetBoundary(rcRgn);
-	//}
-
-	//RectangleX(hDC, rcGraph);
-
-	//SelectObject(hDC, hOldPen);
-	//SelectObject(hDC, hOldbrush);
-	//DeleteObject(hPen);
-	//DeleteObject(hBrush);
 }
 
 void GraphRectangle::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn /* = SCREEN_RC */)

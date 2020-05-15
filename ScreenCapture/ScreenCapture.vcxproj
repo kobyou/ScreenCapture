@@ -78,6 +78,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CLog.h" />
     <ClInclude Include="ColorWnd.h" />
     <ClInclude Include="EditWnd.h" />
     <ClInclude Include="PreDefine.h" />
@@ -92,6 +93,7 @@
     <ClInclude Include="WndImpl.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CLog.cpp" />
     <ClCompile Include="ColorWnd.cpp" />
     <ClCompile Include="DrawGraph.cpp" />
     <ClCompile Include="EditWnd.cpp" />

@@ -1,180 +1,6 @@
 #include "stdafx.h"
 #include "ScrnCapWnd.h"
-
-//add print message function
-static FILE *fp;
-static const UINT8 DEBUG_MODE_NONE = 0;
-static const UINT8 DEBUG_MODE_MESSAGE = 1;
-
-static UINT8 debugMode = DEBUG_MODE_MESSAGE;
-static int LogSaveDays = 90;
-
-static wchar_t * char2wchar(const char* cchar)
-{
-	wchar_t *wchar;
-	int len = MultiByteToWideChar(CP_ACP, 0, cchar, strlen(cchar), NULL, 0);
-	wchar = new wchar_t[len + 1];
-	MultiByteToWideChar(CP_ACP, 0, cchar, strlen(cchar), wchar, len);
-	wchar[len] = '\0';
-	return wchar;
-}
-
-char * wchar2char(const wchar_t* wchar)
-{
-	char * CChar;
-	int len = WideCharToMultiByte(CP_ACP, 0, wchar, wcslen(wchar), NULL, 0, NULL, NULL);
-	CChar = new char[len + 1];
-	WideCharToMultiByte(CP_ACP, 0, wchar, wcslen(wchar), CChar, len, NULL, NULL);
-	CChar[len] = '\0';
-	return CChar;
-}
-static void SetLogSaveDays(int days)
-{
-	LogSaveDays = days;
-}
-
-static void SetDebugMode(UINT8 mode)
-{
-	if(mode <= DEBUG_MODE_MESSAGE) {
-		debugMode = mode;
-	}
-	else {
-		debugMode = DEBUG_MODE_NONE;
-	}
-}
-
-static std::string format(const char * _Format, ...)
-{
-	std::string tmp;
-
-	va_list marker = NULL;
-	va_start(marker, _Format);
-
-	size_t num_of_chars = _vscprintf(_Format, marker);
-
-	if(num_of_chars > tmp.capacity()) {
-		tmp.resize(num_of_chars + 1);
-	}
-
-	vsprintf_s((char *)tmp.data(), tmp.capacity(), _Format, marker);
-
-	va_end(marker);
-
-	return tmp.c_str();
-}
-
-static TCHAR *mctimelocal(BYTE mode)
-{
-	SYSTEMTIME tm;
-	static char strtime[29];
-	GetLocalTime(&tm);
-
-	if(mode == 0) {
-		_snprintf_s(strtime, sizeof(strtime), _TRUNCATE, "[%04d-%02d-%02d %02d:%02d:%02d %03d] ",
-		            tm.wYear,
-		            tm.wMonth,
-		            tm.wDay,
-		            tm.wHour,
-		            tm.wMinute,
-		            tm.wSecond,
-		            tm.wMilliseconds
-		           );
-	}
-	else if(mode == 1) {
-		_snprintf_s(strtime, sizeof(strtime), _TRUNCATE, "%02d%02d%02d%02d",
-		            tm.wMonth,
-		            tm.wDay,
-		            tm.wHour,
-		            tm.wMinute
-		            //tm.wSecond
-		           );
-	}
-	else if(mode == 2) {
-		_snprintf_s(strtime, sizeof(strtime), _TRUNCATE, "%04d%02d%02d",
-		            tm.wYear,
-		            tm.wMonth,
-		            tm.wDay
-		           );
-	}
-	return char2wchar(strtime);
-}
-
-
-
-void MsgOut(const char* _Format, ...)
-{
-	if(debugMode == DEBUG_MODE_NONE) {
-		return;
-	}
-	static int flag = TRUE;
-	static TCHAR file[MAX_PATH];
-	char str_tmp[512] = { 0 };
-	static int FileHandle = 0;
-	unsigned long wrote;
-
-
-	if(flag) {
-		TCHAR fileName[MAX_PATH] = { 0 };
-		TCHAR* ptrEnd;
-		::GetModuleFileName(NULL, file, MAX_PATH);
-		if((ptrEnd = _tcsrchr(file, '\\')) != NULL) {
-			*ptrEnd = '\0';
-			_tcscat_s(file, MAX_PATH, _T("\\Log"));
-			if(_access((char*)file, 0) == -1) {
-				CreateDirectory(file, NULL);
-			}
-
-			_tcscpy_s(fileName, file);
-
-
-			_tcscat_s(fileName, MAX_PATH, _T("\\"));
-			_tcscat_s(fileName, MAX_PATH, mctimelocal(2));
-			if(_access((CHAR *)fileName, 0) == -1) {
-				CreateDirectory(fileName, NULL);
-			}
-
-			_tcscat_s(fileName, MAX_PATH, _T("\\ScrShots_"));
-			_tcscat_s(fileName, MAX_PATH, mctimelocal(2));
-			_tcscat_s(fileName, MAX_PATH, _T(".log"));
-		}
-
-		int dwShareMode = FILE_SHARE_READ;
-		FileHandle = (int)CreateFile(fileName, GENERIC_WRITE, dwShareMode, NULL,
-		                             CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-		if(!(FileHandle > 0)) {
-			SetDebugMode(DEBUG_MODE_NONE);
-		}
-
-		//DeleteFile(file);
-		flag = FALSE;
-	}
-	else {
-		//每天生成一个文件夹
-		TCHAR fileDir[MAX_PATH] = { 0 };
-		_tcscpy_s(fileDir, file);
-
-		_tcscat_s(fileDir, MAX_PATH, _T("\\"));
-		_tcscat_s(fileDir, MAX_PATH, mctimelocal(2));
-		if(_access((CHAR*)fileDir, 0) == -1) {
-			flag = true;
-		}
-	}
-
-	TCHAR *strtime = mctimelocal(0);
-	//printf(strtime);
-
-	va_list vArgList;
-	va_start(vArgList, _Format);
-	_vsnprintf_s(str_tmp, 512, _Format, vArgList);
-	va_end(vArgList);
-
-	//printf(str_tmp);
-
-	if(debugMode == DEBUG_MODE_MESSAGE) {
-		WriteFile((HANDLE)FileHandle, wchar2char(strtime), strlen(wchar2char(strtime)), &wrote, NULL);
-		WriteFile((HANDLE)FileHandle, str_tmp, strlen((str_tmp)), &wrote, NULL);
-	}
-}
+#include "CLog.h"
 
 std::vector<RectX> CScrnCapWnd::m_vecAllWndRect;
 HCURSOR CScrnCapWnd::m_hCursor = NULL;
@@ -200,7 +26,7 @@ CScrnCapWnd::CScrnCapWnd()
 	m_pColorWnd = NULL;
 
 	m_rcTxtSel = ZERO_RC;
-	//m_pEditWnd = NULL;
+	m_pEditWnd = NULL;
 	m_bInputText = FALSE;
 
 	m_nPenWidth = 1;
@@ -221,9 +47,9 @@ CScrnCapWnd::~CScrnCapWnd()
 	if(NULL != m_pColorWnd) {
 		m_pColorWnd = NULL;
 	}
-	//if(NULL != m_pEditWnd) {
-	//	m_pEditWnd = NULL;
-	//}
+	if(NULL != m_pEditWnd) {
+		m_pEditWnd = NULL;
+	}
 }
 
 void CScrnCapWnd::Initialize()
@@ -240,22 +66,23 @@ LPCTSTR CScrnCapWnd::GetWindowClassName() const
 
 void CScrnCapWnd::CreateEditWnd(RectX rc)
 {
-	//if(NULL != m_pEditWnd) {
-	//	if(!::IsWindow(m_pEditWnd->GetSafeHwnd())) {
-	//		delete m_pEditWnd;
-	//		m_pEditWnd = NULL;
-	//	}
-	//}
-	//else {
-	//	m_pEditWnd = new CEditWnd();
-	//	m_pEditWnd->CreateEditWnd(GetSafeHwnd(),  rc);
-	//}
+	if(NULL != m_pEditWnd) {
+		if(!::IsWindow(m_pEditWnd->GetSafeHwnd())) {
+			delete m_pEditWnd;
+			m_pEditWnd = NULL;
+		}
+	}
+	else {
+		m_pEditWnd = new CEditWnd();
+		m_pEditWnd->CreateEditWnd(GetSafeHwnd(),  rc);
+	}
 
 
 	DrawRect(m_hMemPaintDC, rc, 1, PS_DASH);
 	DrawAdjustSquare(m_hMemPaintDC, rc, 2);
-	//MoveWindow(m_pEditWnd->GetSafeHwnd(), rc.leftX - 1, rc.topX + 1, rc.GetW() - 2, rc.GetH() - 2, FALSE);
-	//ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_SHOW);
+	MoveWindow(m_pEditWnd->GetSafeHwnd(), rc.leftX - 1, rc.topX + 1, rc.GetW() - 2, rc.GetH() - 2, FALSE);
+	ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_SHOW);
+	SetFocus(m_pEditWnd->GetSafeHwnd());
 }
 
 void CScrnCapWnd::CreateToolWnd()
@@ -658,10 +485,10 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 		csBitmap.bmBits = (void *) new BYTE[sz];
 		GetBitmapBits((HBITMAP)hB, sz, csBitmap.bmBits);
 
-		MsgOut("Proceeding Image %dx%d, BPP=%d", n_Width, n_Height, n_BPP, csBitmap.bmBits);
+		m_Log.MsgOut("Proceeding Image %dx%d, BPP=%d", n_Width, n_Height, n_BPP, csBitmap.bmBits);
 	}
 	else {
-		MsgOut("Invalid Object in Clipboard Buffer");
+		m_Log.MsgOut("Invalid Object in Clipboard Buffer");
 		return FALSE;
 	}
 
@@ -724,7 +551,7 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 	errno_t err;
 	err = fopen_s(&pFile, file_name, "wb");
 	if(pFile == NULL) {
-		MsgOut("File Cannot Be Written");
+		m_Log.MsgOut("File Cannot Be Written");
 		return FALSE;
 	}
 
@@ -822,7 +649,9 @@ LRESULT CScrnCapWnd::OnPaint(WPARAM wParam, LPARAM lParam)
 		}
 		else {
 			if(ACTION_TEXT == m_emAction) {
-				CreateEditWnd(m_rcTxtSel);
+				if(m_bInputText) {
+					CreateEditWnd(m_rcTxtSel);
+				}
 			}
 			DrawRect(m_hMemPaintDC, m_rcSel, 1, PS_DASH);
 			DrawAdjustSquare(m_hMemPaintDC, m_rcSel, 2);
@@ -950,21 +779,21 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 			}
 			case ACTION_TEXT: { //文字输入
 				//计算鼠标偏移位置
-				int xOffset = ptParam.x - m_ptMoving.x;
-				int yOffset = ptParam.y - m_ptMoving.y;
-				CString msg;
-				msg.Format(_T("xOffset:%d,yOffset:%d"), xOffset, yOffset);
-				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
-				//调整
-				if(AdjustTxt(xOffset, yOffset)) {
-					MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
-					m_ptMoving = ptParam;
+				//int xOffset = ptParam.x - m_ptMoving.x;
+				//int yOffset = ptParam.y - m_ptMoving.y;
+				//CString msg;
+				//msg.Format(_T("xOffset:%d,yOffset:%d"), xOffset, yOffset);
+				////MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
+				////调整
+				//if(AdjustTxt(xOffset, yOffset)) {
+				//	MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
+				//	m_ptMoving = ptParam;
 
-					//AdjustToolPos();会有闪屏
+				//	//AdjustToolPos();会有闪屏
 
-					ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
-					InvalidateRgn(GetSafeHwnd(), NULL, false);
-				}
+				//	ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
+				//	InvalidateRgn(GetSafeHwnd(), NULL, false);
+				//}
 			}
 			break;
 			case ACTION_RECT:
@@ -1018,6 +847,26 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 
 				break;
 			case ACTION_TEXT: { //文字输入
+				if(!m_rcTxtSel.PtInRectX(ptParam) && m_bInputText) {
+					m_bInputText = FALSE;
+
+					if(NULL != m_pGraph) {
+						delete m_pGraph;
+						m_pGraph = NULL;
+					}
+
+					CString str;
+					GetWindowText(m_pEditWnd->GetSafeHwnd(), str.GetBuffer(), 255);
+					ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
+					SetWindowText(m_pEditWnd->GetSafeHwnd(), _T(""));
+					//MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
+
+					m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
+					BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
+					m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
+					InvalidateRgn(GetSafeHwnd(), NULL, false);
+				}
+
 				if(!m_bInputText) {
 					m_bInputText = TRUE;
 					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 21);
@@ -1027,27 +876,27 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 					SelectObject(m_hMemDC, m_hOldGraphBMP);
 					InvalidateRgn(GetSafeHwnd(), NULL, false);
 				}
-				else {
-					//写文字
-					if(!m_rcTxtSel.PtInRectX(ptParam)) {
-						m_bInputText = FALSE;
-						//MessageBox(GetSafeHwnd(), TEXT("0"), TEXT("0"), 0);
+				//else {
+				//	//写文字
+				//	if(!m_rcTxtSel.PtInRectX(ptParam)) {
+				//		m_bInputText = FALSE;
+				//		////MessageBox(GetSafeHwnd(), TEXT("0"), TEXT("0"), 0);
 
-						if(NULL != m_pGraph) {
-							delete m_pGraph;
-							m_pGraph = NULL;
-						}
+				//		//if(NULL != m_pGraph) {
+				//		//	delete m_pGraph;
+				//		//	m_pGraph = NULL;
+				//		//}
 
-						CString str;
-						GetWindowText(m_pEditWnd->GetSafeHwnd(), str.GetBuffer(), 255);
-						MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
+				//		//CString str;
+				//		//GetWindowText(m_pEditWnd->GetSafeHwnd(), str.GetBuffer(), 255);
+				//		//MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
 
-						m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
-						BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
-						m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
-						InvalidateRgn(GetSafeHwnd(), NULL, false);
-					}
-				}
+				//		//m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
+				//		//BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
+				//		//m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
+				//		//InvalidateRgn(GetSafeHwnd(), NULL, false);
+				//	}
+				//}
 			}
 			break;
 			case ACTION_RECT:
@@ -1056,7 +905,7 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 				m_stackUndoGraph.push(m_hGraphBMP);     //每完成一个绘图操作，将绘图前屏幕压入“撤销”栈
 				SelectObject(m_hMemDC, m_hOldGraphBMP);
 				InvalidateRgn(GetSafeHwnd(), NULL, false);
-				MsgOut("ACTION:%d\n", m_emAction);
+				m_Log.MsgOut("ACTION:%d\n", m_emAction);
 				break;
 			}
 
@@ -1441,7 +1290,7 @@ LRESULT CScrnCapWnd::ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
 			OnSaveImage(wParam, lParam);
 			break;
 		case SCMSG_TEXT:
-			MsgOut("SCMSG_TEXT\n");
+			m_Log.MsgOut("SCMSG_TEXT\n");
 			OnText(wParam, lParam);
 			break;
 		case SCMSG_RECTANGLE:

@@ -6,8 +6,7 @@
 #include "ToolWnd.h"
 #include "GlobalAPI.h"
 #include "EditWnd.h"
-
-void MsgOut(const char* _Format, ...);
+#include "CLog.h"
 
 typedef enum {
 	ACTION_CHOOSING,
@@ -217,6 +216,9 @@ private:
 private:
 	static HCURSOR m_hCursor;
 	static std::vector<RectX> m_vecAllWndRect;
+
+public:
+	CLog m_Log;
 };
 
 #endif
