@@ -280,33 +280,14 @@ BOOL CScrnCapWnd::Adjust(int cxOffset, int cyOffset)
 
 BOOL CScrnCapWnd::AdjustTxt(int cxOffset, int cyOffset)
 {
-	//拉伸
-	if(m_bStretching) {
-		Stretch_Adjust(m_emStrech, m_rcChoosing, cxOffset, cyOffset);
-
+	//拖拽
+	if(m_rcTxtSel.PtInRectX(m_ptMoving)) {
+		m_rcChoosing = m_rcTxtSel;
+		Drag_Adjust(m_rcChoosing, cxOffset, cyOffset);
 		m_rcTxtSel = m_rcChoosing;
 		m_rcTxtSel.ResetStartEnd();
 
-		if(m_rcTxtSel.leftX == m_rcSel.rightX) {
-			m_rcTxtSel.rightX++;
-		}
-		if(m_rcTxtSel.topX == m_rcSel.bottomX) {
-			m_rcTxtSel.bottomX++;
-		}
-
-
 		return TRUE;
-	}
-	else {
-		//拖拽
-		if(m_rcTxtSel.PtInRectX(m_ptMoving)) {
-			m_rcChoosing = m_rcTxtSel;
-			Drag_Adjust(m_rcChoosing, cxOffset, cyOffset);
-			m_rcTxtSel = m_rcChoosing;
-			m_rcTxtSel.ResetStartEnd();
-
-			return TRUE;
-		}
 	}
 
 	return FALSE;
@@ -365,8 +346,9 @@ void CScrnCapWnd::PaintSelRgn()
 
 void CScrnCapWnd::Undo()
 {
-	if((m_emAction == ACTION_TEXT) && m_bInputText) {
+	if(IsWindowVisible(m_pEditWnd->GetSafeHwnd()) && m_bInputText) {
 		m_bInputText = FALSE;
+		ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
 		InvalidateRgn(GetSafeHwnd(), NULL, false);
 	}
 
@@ -415,6 +397,12 @@ void CScrnCapWnd::Undo()
 
 void CScrnCapWnd::Redo()
 {
+	if(IsWindowVisible(m_pEditWnd->GetSafeHwnd()) && m_bInputText) {
+		m_bInputText = FALSE;
+		ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
+		InvalidateRgn(GetSafeHwnd(), NULL, false);
+	}
+
 	if(m_rcSelRedo != m_rcSel) {
 		ClearRedoStack();
 		return ;
@@ -437,6 +425,7 @@ void CScrnCapWnd::Redo()
 
 BOOL CScrnCapWnd::Save()
 {
+
 	BOOL bSuccess = FALSE;
 
 	CString strDefName;
@@ -450,6 +439,12 @@ BOOL CScrnCapWnd::Save()
 	ZeroMemory(szDefTitle, MAX_PATH);
 
 	StrCpy(szDefPath, strDefName);
+
+	if(IsWindowVisible(m_pEditWnd->GetSafeHwnd()) && m_bInputText) {
+		m_bInputText = FALSE;
+		ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
+		InvalidateRgn(GetSafeHwnd(), NULL, false);
+	}
 
 	//打开保存对话框
 	if(GetSaveFilePath(m_hInstance, GetSafeHwnd(), szDefPath, szDefTitle, nFilterIndex)) {
@@ -490,10 +485,10 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 		csBitmap.bmBits = (void *) new BYTE[sz];
 		GetBitmapBits((HBITMAP)hB, sz, csBitmap.bmBits);
 
-		m_Log.MsgOut("Proceeding Image %dx%d, BPP=%d", n_Width, n_Height, n_BPP, csBitmap.bmBits);
+		//m_Log.MsgOut("Proceeding Image %dx%d, BPP=%d", n_Width, n_Height, n_BPP, csBitmap.bmBits);
 	}
 	else {
-		m_Log.MsgOut("Invalid Object in Clipboard Buffer");
+		//m_Log.MsgOut("Invalid Object in Clipboard Buffer");
 		return FALSE;
 	}
 
@@ -783,7 +778,6 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 					ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
 					InvalidateRgn(GetSafeHwnd(), NULL, false);
 				}
-
 				break;
 			}
 			case ACTION_TEXT: { //文字输入
@@ -791,9 +785,12 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 				//int xOffset = ptParam.x - m_ptMoving.x;
 				//int yOffset = ptParam.y - m_ptMoving.y;
 				//CString msg;
-				//msg.Format(_T("xOffset:%d,yOffset:%d"), xOffset, yOffset);
-				////MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
-				////调整
+				//msg.Format(_T("ptParam.x:%d,ptParam.y:%d"), ptParam.x, ptParam.y);
+				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
+
+				//msg.Format(_T("m_ptMoving.x:%d,m_ptMoving.y:%d"), m_ptMoving.x, m_ptMoving.y);
+				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
+				//调整
 				//if(AdjustTxt(xOffset, yOffset)) {
 				//	MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
 				//	m_ptMoving = ptParam;
@@ -856,7 +853,7 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 
 				break;
 			case ACTION_TEXT: { //文字输入
-				if(!m_rcTxtSel.PtInRectX(ptParam) && m_bInputText) {
+				if(!m_rcTxtSel.PtInRectX(ptParam) && m_bInputText) { //在文字输入框之外点击
 					m_bInputText = FALSE;
 
 					m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
@@ -1618,11 +1615,15 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 			case ACTION_TEXT:
 				if(!m_bInputText) {
 					m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
+
 				}
 				else {
 					if(GetStrechDrct(m_rcTxtSel, ptCurPos) != STRETCH_NO) {
 						m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
 					}
+					//else if((m_rcTxtSel.PtInRectX(ptCurPos) && m_bLBtnDown)) {
+					//	m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
+					//}
 					else {
 						m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
 					}
