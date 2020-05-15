@@ -19,7 +19,7 @@ public:
 
 class GraphText : public IGraph {
 public:
-<<<<<<< HEAD
+
 	GraphText(CString strText)
 	{
 		m_strText = strText;
@@ -27,21 +27,15 @@ public:
 	GraphText()
 	{
 		m_strText.Empty();
-=======
-	GraphText()
-	{
-
->>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 	}
+
 	~GraphText()
 	{
 
 	}
 public:
-<<<<<<< HEAD
+
 	CString m_strText;
-=======
->>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 	void DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, COLORREF dwPenColor, const RectX& rcRgn = SCREEN_RC);
 };
 

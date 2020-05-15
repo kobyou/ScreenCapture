@@ -79,6 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ColorWnd.h" />
+    <ClInclude Include="EditWnd.h" />
     <ClInclude Include="PreDefine.h" />
     <ClInclude Include="DrawGraph.hpp" />
     <ClInclude Include="GlobalAPI.h" />
@@ -93,6 +94,7 @@
   <ItemGroup>
     <ClCompile Include="ColorWnd.cpp" />
     <ClCompile Include="DrawGraph.cpp" />
+    <ClCompile Include="EditWnd.cpp" />
     <ClCompile Include="GlobalAPI.cpp" />
     <ClCompile Include="ScrnCapMain.cpp" />
     <ClCompile Include="ScrnCapWnd.cpp" />

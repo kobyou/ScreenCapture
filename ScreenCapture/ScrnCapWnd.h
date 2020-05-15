@@ -5,7 +5,7 @@
 #include "DrawGraph.hpp"
 #include "ToolWnd.h"
 #include "GlobalAPI.h"
-//#include "EditWnd.h"
+#include "EditWnd.h"
 
 void MsgOut(const char* _Format, ...);
 
@@ -208,7 +208,7 @@ private:
 	CColorWnd* m_pColorWnd;
 
 	RectX m_rcTxtSel;       //已选文字区域（文字输入过程中始终为标准矩形）
-	//CEditWnd * m_pEditWnd;
+	CEditWnd * m_pEditWnd;
 	BOOL m_bInputText;
 
 	int m_nPenWidth;

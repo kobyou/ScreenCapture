@@ -1032,7 +1032,6 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 					if(!m_rcTxtSel.PtInRectX(ptParam)) {
 						m_bInputText = FALSE;
 						//MessageBox(GetSafeHwnd(), TEXT("0"), TEXT("0"), 0);
-<<<<<<< HEAD
 
 						if(NULL != m_pGraph) {
 							delete m_pGraph;
@@ -1044,8 +1043,6 @@ LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 						MessageBox(GetSafeHwnd(), str, TEXT("0"), 0);
 
 						m_pGraph = GraphFactory::CreateGraph(m_emAction, str);
-=======
->>>>>>> 0fa47d5d792ef3759d316040d69d36bc29c3f771
 						BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 						m_pGraph->DrawGraph(m_hMemCurScrnDC, m_rcTxtSel.GetStartPoint(), ptParam, m_nPenWidth, m_dwPenColor, m_rcSel);
 						InvalidateRgn(GetSafeHwnd(), NULL, false);

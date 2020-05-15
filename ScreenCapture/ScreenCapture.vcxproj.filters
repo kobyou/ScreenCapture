@@ -66,6 +66,9 @@
     <ClInclude Include="PreDefine.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EditWnd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -93,6 +96,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ColorWnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EditWnd.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
