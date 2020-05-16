@@ -36,7 +36,7 @@ void CEditWnd::CreateEditWnd(HWND hWnd, CRectEx rect)
 		//DWORD dStyleEx = WS_CHILD | WS_VISIBLE | WS_BORDER;
 #if 1
 		m_hEditWnd = CreateWindow(_T("edit"), NULL, dStyleEx,
-		                          rect.leftX, rect.topX, rect.GetW(), rect.GetH(), hWnd, NULL, NULL, NULL);
+		                          rect.leftX, rect.topX, rect.GetW(), rect.GetH(), hWnd, (HMENU)IDB_EDIT_TEXT, NULL, NULL);
 #else
 		m_hRichEditDll = LoadLibrary(_T("RICHED20.dll"));
 		m_hEditWnd = Create(hWnd, TEXT("RichEdit20A"), NULL,

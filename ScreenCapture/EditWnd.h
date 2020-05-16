@@ -2,7 +2,7 @@
 #define  EDITWND_H
 #include "WndImpl.hpp"
 #include "RectEx.hpp"
-#define IDC_EDIT 1000
+
 class CEditWnd : public CWndImpl {
 public:
 	CEditWnd();

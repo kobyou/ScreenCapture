@@ -1291,11 +1291,11 @@ LRESULT CScrnCapWnd::ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
 			OnRButtonUp(wParam, lParam);
 			break;
 		case WM_CTLCOLOREDIT:
-			//if((HWND)lParam == m_pEditWnd->GetDlgID()) {
-			//	SetTextColor((HDC)wParam, RGB(255, 0, 0));
-			//	SetBkMode((HDC)wParam, OPAQUE);
-			//	return (INT_PTR)GetStockObject(NULL_BRUSH);
-			//}
+			if((HWND)lParam == m_pEditWnd->GetSafeHwnd()) {
+				SetTextColor((HDC)wParam, m_dwPenColor);
+				SetBkMode((HDC)wParam, TRANSPARENT);//…Ë÷√±≥æ∞Õ∏√˜
+				return (INT_PTR)GetStockObject(NULL_BRUSH);
+			}
 			break;
 		//user msg process
 		case SCMSG_RECAP:
