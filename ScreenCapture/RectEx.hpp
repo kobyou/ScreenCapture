@@ -114,7 +114,9 @@ public:
 
 	BOOL PtOnRectX(POINT pt) const
 	{
-		return ((pt.x == leftX) || (pt.x == rightX) || (pt.y == topX) || (pt.y == bottomX));
+		//return (((((pt.x == leftX) || (pt.x == rightX)) && (pt.y < topX) && (pt.y > bottomX))) ||
+		//        ((pt.y == topX) || (pt.y == bottomX)) && (pt.x > leftX) && (pt.x < rightX));
+		return ((pt.x == leftX) || (pt.x == rightX)  || (pt.y == topX) || (pt.y == bottomX)) ;
 	}
 
 	BOOL OutOfBoundary(const CRectEx& rcBoundary)

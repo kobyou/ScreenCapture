@@ -996,6 +996,10 @@ LRESULT CScrnCapWnd::OnKeyDown(WPARAM wParam, LPARAM lParam)
 				SendMessage(SCMSG_HIGHLIGHT, wParam);
 				::SendMessage(m_pToolWnd->GetSafeHwnd(), WM_COMMAND, MAKEWPARAM(IDM_HIGHLIGHT, BN_CLICKED), 0L);
 				break;
+			case VK_F8:
+				SendMessage(SCMSG_TEXT, wParam);
+				::SendMessage(m_pToolWnd->GetSafeHwnd(), WM_COMMAND, MAKEWPARAM(IDM_TEXT, BN_CLICKED), 0L);
+				break;
 
 		}
 
@@ -1617,7 +1621,7 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 
 				}
 				else {
-					if(m_rcTxtSel.PtInRectX(ptCurPos) || m_rcTxtSel.PtOnRectX(ptCurPos)) {
+					if(m_rcTxtSel.PtInRectX(ptCurPos) || GetStrechDrct(m_rcTxtSel, ptCurPos) != STRETCH_NO) {
 						m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
 					}
 					else {
