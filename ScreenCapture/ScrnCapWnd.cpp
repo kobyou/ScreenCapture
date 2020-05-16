@@ -730,9 +730,14 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 			}
 
 			if(!m_bInputText) {
-				if(m_rcSel.PtInRectX(m_ptStart) /*&& m_rcTxtSel.PtOutRectX(m_ptStart)*/) {
+				POINT endPoint, judgePoint;
+				endPoint.x = m_ptStart.x + 200;
+				endPoint.y = m_ptStart.y + 25;
+				judgePoint.x = m_ptStart.x;
+				judgePoint.y = m_ptStart.y + 20;
+				if((m_rcSel.PtInRectX(m_ptStart) && m_rcSel.PtInRectX(judgePoint) /*&& m_rcTxtSel.PtOutRectX(m_ptStart)*/)) {
 					m_bInputText = TRUE;
-					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 25);
+					RectX rc(m_ptStart, endPoint);
 
 					m_rcTxtSel = rc;
 					m_rcTxtSel.ResetStartEnd();
@@ -836,18 +841,20 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			case ACTION_TEXT: { //文字输入
-				//计算鼠标偏移位置
-				int xOffset = ptParam.x - m_ptMoving.x; //当前坐标与起点坐标偏移
-				int yOffset = ptParam.y - m_ptMoving.y;
-				//调整
-				if(AdjustTxt(xOffset, yOffset)) {
-					//MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
-					m_ptMoving = ptParam;
+				if(m_rcSel.PtInRectX(m_rcTxtSel.GetStartPoint()) && m_rcSel.PtInRectX(m_rcTxtSel.GetEndPoint())) {
+					//计算鼠标偏移位置
+					int xOffset = ptParam.x - m_ptMoving.x; //当前坐标与起点坐标偏移
+					int yOffset = ptParam.y - m_ptMoving.y;
+					//调整
+					if(AdjustTxt(xOffset, yOffset)) {
+						//MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
+						m_ptMoving = ptParam;
 
-					//AdjustToolPos();会有闪屏
+						//AdjustToolPos();会有闪屏
 
-					//ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
-					InvalidateRgn(GetSafeHwnd(), NULL, false);
+						//ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
+						InvalidateRgn(GetSafeHwnd(), NULL, false);
+					}
 				}
 			}
 			break;
