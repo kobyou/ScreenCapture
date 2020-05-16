@@ -731,8 +731,8 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 
 			if(!m_bInputText) {
 				POINT endPoint, judgePoint;
-				endPoint.x = m_ptStart.x + 200;
-				endPoint.y = m_ptStart.y + 25;
+				endPoint.x = m_ptStart.x + RC_TEXTWND_W;
+				endPoint.y = m_ptStart.y + RC_TEXTWND_H;
 				judgePoint.x = m_ptStart.x ;
 				judgePoint.y = m_ptStart.y + 20;
 				if((m_rcSel.PtInRectX(m_ptStart) && m_rcSel.PtInRectX(judgePoint) /*&& m_rcTxtSel.PtOutRectX(m_ptStart)*/)) {
@@ -748,7 +748,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 
 					if(m_rcTxtSel.bottomX > m_rcSel.bottomX) {
 						m_rcTxtSel.bottomX = m_rcSel.bottomX;
-						m_rcTxtSel.topX = m_rcTxtSel.bottomX - 25;
+						m_rcTxtSel.topX = m_rcTxtSel.bottomX - RC_TEXTWND_H;
 					}
 
 					if(m_rcTxtSel.topX < m_rcSel.topX) {
