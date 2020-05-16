@@ -12,6 +12,7 @@ public:
 	LPCTSTR  GetWindowClassName() const;
 	void Initialize(void);
 	void CreateEditWnd(HWND hWnd,  CRectEx rect);
+	HDC GetHDC() const;
 	HWND GetSafeHwnd() const;
 private:
 	//HBRUSH m_hBrushBk;

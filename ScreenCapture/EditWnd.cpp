@@ -52,3 +52,8 @@ HWND CEditWnd::GetSafeHwnd() const
 {
 	return this == NULL ? NULL : m_hEditWnd;
 }
+
+HDC CEditWnd::GetHDC() const
+{
+	return GetDC(m_hEditWnd);
+}
