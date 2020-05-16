@@ -24,7 +24,7 @@ void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, CO
 	HFONT hFont = CreateFont(15, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("宋体"));
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
-	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
+	SetBkMode(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境
 	//TextOutW(hDC, ptStart.x, ptStart.y, m_strText, wcslen(m_strText));//使用当前字体输出文本
 	RectX rcTx(ptStart, ptEnd);
