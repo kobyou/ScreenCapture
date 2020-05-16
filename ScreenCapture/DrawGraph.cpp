@@ -19,10 +19,10 @@ void GraphText::DrawGraph(HDC hDC, POINT ptStart, POINT ptEnd, int nPenWidth, CO
 	//                   CLIP_DEFAULT_PRECIS,    //剪裁精度为缺省精度
 	//                   DEFAULT_QUALITY,        //输出质量为缺省值
 	//                   DEFAULT_PITCH | FF_DONTCARE,//字间距和字体系列使用缺省值
-	//                   L"仿体"             //字体名称
+	//                   L"宋体"             //字体名称
 	//               );
-	HFONT hFont = CreateFont(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("仿体"));
+	HFONT hFont = CreateFont(15, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+	                         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, _T("宋体"));
 	SetTextColor(hDC, dwPenColor);  //设置文本颜色为蓝色
 	//SetBkColor(hDC, TRANSPARENT);  //设置背景颜色
 	SelectObject(hDC, hFont);      //将自定义字体选入设备环境
