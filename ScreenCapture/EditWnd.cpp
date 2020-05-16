@@ -42,7 +42,7 @@ void CEditWnd::CreateEditWnd(HWND hWnd, CRectEx rect)
 		m_hEditWnd = Create(hWnd, TEXT("RichEdit20A"), NULL,
 		                    WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_NOHIDESEL, rect);
 #endif
-
+		//SetTextColor((HDC)m_hEditWnd, RGB(255, 0, 0));
 		Initialize();
 	}
 	SetFocus(m_hEditWnd);

@@ -80,7 +80,7 @@ void CScrnCapWnd::CreateEditWnd(RectX rc)
 
 	DrawRect(m_hMemPaintDC, rc, 1, PS_DASH);
 	DrawAdjustSquare(m_hMemPaintDC, rc, 2);
-	MoveWindow(m_pEditWnd->GetSafeHwnd(), rc.leftX - 1, rc.topX + 1, rc.GetW() - 2, rc.GetH() - 2, FALSE);
+	MoveWindow(m_pEditWnd->GetSafeHwnd(), rc.leftX + 2, rc.topX + 4, rc.GetW() - 4, rc.GetH() - 6, FALSE);
 	if(!IsWindowVisible(m_pEditWnd->GetSafeHwnd())) {
 		ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_SHOW);
 	}
@@ -283,7 +283,7 @@ BOOL CScrnCapWnd::Adjust(int cxOffset, int cyOffset)
 BOOL CScrnCapWnd::AdjustTxt(int cxOffset, int cyOffset)
 {
 	//拖拽
-	if(m_rcTxtSel.PtInRectX(m_ptMoving)) {
+	if(m_rcTxtSel.PtOnRectX(m_ptMoving)) {
 		m_rcChoosing = m_rcTxtSel;
 		Drag_Adjust(m_rcChoosing, cxOffset, cyOffset);
 		m_rcTxtSel = m_rcChoosing;
@@ -681,8 +681,9 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 {
 	m_ptStart.x = LOWORD(lParam);
 	m_ptStart.y = HIWORD(lParam);
-	m_ptMoving = m_ptStart;
+	//m_ptMoving = m_ptStart;
 	POINT ptParam = { LOWORD(lParam), HIWORD(lParam) };
+	m_ptMoving = ptParam;
 
 	switch(m_emAction) {
 		default:
@@ -695,7 +696,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case ACTION_TEXT: {
-			if(!m_rcTxtSel.PtInRectX(ptParam) && m_bInputText) {   //在文字输入框之外点击
+			if(m_rcTxtSel.PtOutRectX(ptParam) /*&& m_rcTxtSel.PtOnRectX(ptParam)*/ && m_bInputText) { //在文字输入框之外点击
 				m_bInputText = FALSE;
 
 				m_hGraphBMP = CreateCompatibleBitmap(m_hMemCurScrnDC, SCREEN_X, SCREEN_Y); //画布
@@ -729,9 +730,9 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 			}
 
 			if(!m_bInputText) {
-				if(m_rcSel.PtInRectX(m_ptStart)) {
+				if(m_rcSel.PtInRectX(m_ptStart) /*&& m_rcTxtSel.PtOutRectX(m_ptStart)*/) {
 					m_bInputText = TRUE;
-					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 21);
+					RectX rc(m_ptStart.x, m_ptStart.y, m_ptStart.x + 200, m_ptStart.y + 25);
 
 					m_rcTxtSel = rc;
 					m_rcTxtSel.ResetStartEnd();
@@ -836,24 +837,18 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 			}
 			case ACTION_TEXT: { //文字输入
 				//计算鼠标偏移位置
-				//int xOffset = ptParam.x - m_ptMoving.x;
-				//int yOffset = ptParam.y - m_ptMoving.y;
-				//CString msg;
-				//msg.Format(_T("ptParam.x:%d,ptParam.y:%d"), ptParam.x, ptParam.y);
-				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
-
-				//msg.Format(_T("m_ptMoving.x:%d,m_ptMoving.y:%d"), m_ptMoving.x, m_ptMoving.y);
-				//MessageBox(GetSafeHwnd(), msg, TEXT("0"), 0);
+				int xOffset = ptParam.x - m_ptMoving.x; //当前坐标与起点坐标偏移
+				int yOffset = ptParam.y - m_ptMoving.y;
 				//调整
-				//if(AdjustTxt(xOffset, yOffset)) {
-				//	MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
-				//	m_ptMoving = ptParam;
+				if(AdjustTxt(xOffset, yOffset)) {
+					//MessageBox(GetSafeHwnd(), TEXT("1"), TEXT("0"), 0);
+					m_ptMoving = ptParam;
 
-				//	//AdjustToolPos();会有闪屏
+					//AdjustToolPos();会有闪屏
 
-				//	ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
-				//	InvalidateRgn(GetSafeHwnd(), NULL, false);
-				//}
+					//ShowWindow(m_pToolWnd->GetSafeHwnd(), SW_HIDE);
+					InvalidateRgn(GetSafeHwnd(), NULL, false);
+				}
 			}
 			break;
 			case ACTION_RECT:
@@ -1291,7 +1286,13 @@ LRESULT CScrnCapWnd::ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONUP:
 			OnRButtonUp(wParam, lParam);
 			break;
-
+		case WM_CTLCOLOREDIT:
+			//if((HWND)lParam == m_pEditWnd->GetDlgID()) {
+			//	SetTextColor((HDC)wParam, RGB(255, 0, 0));
+			//	SetBkMode((HDC)wParam, OPAQUE);
+			//	return (INT_PTR)GetStockObject(NULL_BRUSH);
+			//}
+			break;
 		//user msg process
 		case SCMSG_RECAP:
 			OnRecap(wParam, lParam);
@@ -1616,12 +1617,9 @@ void CScrnCapWnd::SetScrnCursor(HWND hWnd, const RectX& rcCursorLie, const BOOL&
 
 				}
 				else {
-					if(GetStrechDrct(m_rcTxtSel, ptCurPos) != STRETCH_NO) {
+					if(m_rcTxtSel.PtInRectX(ptCurPos) || m_rcTxtSel.PtOnRectX(ptCurPos)) {
 						m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
 					}
-					//else if((m_rcTxtSel.PtInRectX(ptCurPos) && m_bLBtnDown)) {
-					//	m_hCursor = ::LoadCursor(NULL, IDC_SIZEALL); //四向箭头指向东、西、南、北
-					//}
 					else {
 						m_hCursor = ::LoadCursor(NULL, IDC_IBEAM);
 					}
