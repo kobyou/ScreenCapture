@@ -5,7 +5,7 @@
 std::vector<RectX> CScrnCapWnd::m_vecAllWndRect;
 HCURSOR CScrnCapWnd::m_hCursor = NULL;
 
-CScrnCapWnd::CScrnCapWnd()
+CScrnCapWnd::CScrnCapWnd(BOOL bFullScrShot)
 {
 	m_ptStart = ZERO_PT;
 	m_ptMoving = ZERO_PT;
@@ -31,6 +31,8 @@ CScrnCapWnd::CScrnCapWnd()
 
 	m_nPenWidth = 1;
 	m_dwPenColor = RGB(255, 0, 0);
+
+	SetFullScrShot(bFullScrShot);
 }
 
 CScrnCapWnd::~CScrnCapWnd()
@@ -159,14 +161,18 @@ void CScrnCapWnd::InitializeDC()
 	m_hGrayBMP = CreateCompatibleBitmap(hDispDC, SCREEN_X, SCREEN_Y);
 	m_hOldGrayBMP = (HBITMAP)SelectObject(m_hMemDC, m_hGrayBMP);
 	BitBltEx(m_hMemDC, SCREEN_RC, hDispDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
-	ConvertToGrayBitmap(m_hGrayBMP, m_hMemDC); //转成灰色BMP
+	if(!IsFullScrShot()) {
+		ConvertToGrayBitmap(m_hGrayBMP, m_hMemDC); //转成灰色BMP
+	}
 	SelectObject(m_hMemDC, m_hOldGrayBMP);
 
 	//m_hGrayBMP全程被m_hMemPaintDC使用，故新建相同灰色BMP供操作用
 	m_hGrayBMP2 = CreateCompatibleBitmap(hDispDC, SCREEN_X, SCREEN_Y);
 	m_hOldGrayBMP2 = (HBITMAP)SelectObject(m_hMemDC, m_hGrayBMP2);
 	BitBltEx(m_hMemDC, SCREEN_RC, hDispDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
-	ConvertToGrayBitmap(m_hGrayBMP2, m_hMemDC); //转成灰色BMP
+	if(!IsFullScrShot()) {
+		ConvertToGrayBitmap(m_hGrayBMP2, m_hMemDC); //转成灰色BMP
+	}
 	SelectObject(m_hMemDC, m_hOldGrayBMP2);
 
 	//绘制DC
@@ -473,6 +479,35 @@ BOOL CScrnCapWnd::Save()
 	return bSuccess;
 }
 
+void CScrnCapWnd::GetSaveBitmapName(char bitmap[])
+{
+	//get system time
+	SYSTEMTIME st = { 0 };
+	GetLocalTime(&st);
+
+	//get user name
+	TCHAR cUser[256] = { 0 };
+	DWORD dwSize = 256;
+	GetUserName(cUser, &dwSize);
+
+	//file name
+	char fileDir[256] = { 0 };
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", wchar2char(cUser));
+	if(_access(fileDir, 0) != 0) {
+		_mkdir(fileDir);
+	}
+
+	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", wchar2char(cUser), st.wYear, st.wMonth, st.wDay);
+	if(_access(fileDir, 0) != 0) {
+		_mkdir(fileDir);
+	}
+
+	char file_name[256] = { 0 };
+	sprintf_s(file_name, "%s\\ScrShots_%02d%02d%02d.png", fileDir, st.wHour, st.wMinute, st.wSecond);
+
+	memcpy_s(bitmap, sizeof(file_name), file_name, sizeof(file_name));
+}
+
 BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 {
 	BITMAP csBitmap;
@@ -524,34 +559,37 @@ BOOL CScrnCapWnd::SaveBitmap(HBITMAP hB)
 		// too obvoius to add them here....
 	}
 
-	//get system time
-	SYSTEMTIME st = { 0 };
-	GetLocalTime(&st);
+	////get system time
+	//SYSTEMTIME st = { 0 };
+	//GetLocalTime(&st);
 
-	//get user name
-	TCHAR cUser[256] = { 0 };
-	DWORD dwSize = 256;
-	GetUserName(cUser, &dwSize);
+	////get user name
+	//TCHAR cUser[256] = { 0 };
+	//DWORD dwSize = 256;
+	//GetUserName(cUser, &dwSize);
 
-	//file name
-	char fileDir[256] = { 0 };
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", wchar2char(cUser));
-	if(_access(fileDir, 0) != 0) {
-		_mkdir(fileDir);
-	}
+	////file name
+	//char fileDir[256] = { 0 };
+	//sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots", wchar2char(cUser));
+	//if(_access(fileDir, 0) != 0) {
+	//	_mkdir(fileDir);
+	//}
 
-	sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", wchar2char(cUser), st.wYear, st.wMonth, st.wDay);
-	if(_access(fileDir, 0) != 0) {
-		_mkdir(fileDir);
-	}
+	//sprintf_s(fileDir, "C:\\Users\\%s\\Pictures\\ScrShots\\%d%02d%02d", wchar2char(cUser), st.wYear, st.wMonth, st.wDay);
+	//if(_access(fileDir, 0) != 0) {
+	//	_mkdir(fileDir);
+	//}
 
-	char file_name[256] = { 0 };
-	sprintf_s(file_name, "%s\\ScrShots_%02d%02d%02d.png", fileDir, st.wHour, st.wMinute, st.wSecond);
+	//char file_name[256] = { 0 };
+	//sprintf_s(file_name, "%s\\ScrShots_%02d%02d%02d.png", fileDir, st.wHour, st.wMinute, st.wSecond);
+
+	char bitmap[256] = { 0 };
+	GetSaveBitmapName(bitmap);
 
 	unsigned long n_Bits = 32;
 	FILE *pFile;
 	errno_t err;
-	err = fopen_s(&pFile, file_name, "wb");
+	err = fopen_s(&pFile, bitmap, "wb");
 	if(pFile == NULL) {
 		m_Log.MsgOut("File Cannot Be Written");
 		return FALSE;
@@ -635,16 +673,17 @@ LRESULT CScrnCapWnd::OnPaint(WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	m_hClientDC = BeginPaint(GetSafeHwnd(), &ps) ;
 
-	if(ACTION_ADJUST >= m_emAction) {
+	if((ACTION_ADJUST >= m_emAction) && !IsFullScrShot()) {
 		PaintSelRgn();
 	}
 	else {
 		BitBltEx(m_hMemPaintDC, m_rcSel, m_hMemCurScrnDC, m_rcSel.GetStartPoint(), SRCCOPY | CAPTUREBLT);
 	}
+
 	//画尺寸前保存最纯净当前屏幕
 	BitBltEx(m_hMemCurScrnDC, SCREEN_RC, m_hMemPaintDC, ZERO_PT, SRCCOPY | CAPTUREBLT);
 
-	if(!m_rcSel.IsInvalid()) {
+	if(!m_rcSel.IsInvalid() && !IsFullScrShot()) {
 		//将已选区域框起
 		if(ACTION_CHOOSING == m_emAction && !m_bLBtnDown) {
 			DrawRect(m_hMemPaintDC, m_rcSel, 5, PS_SOLID);
@@ -706,7 +745,7 @@ LRESULT CScrnCapWnd::OnLButtonDown(WPARAM wParam, LPARAM lParam)
 				CString str;
 				TCHAR chr[255] = { 0 };
 				str.Empty();
-				GetWindowText(m_pEditWnd->GetSafeHwnd(), chr, 20);
+				GetWindowText(m_pEditWnd->GetSafeHwnd(), chr, 250);
 				if(IsWindowVisible(m_pEditWnd->GetSafeHwnd())) {
 					ShowWindow(m_pEditWnd->GetSafeHwnd(), SW_HIDE);
 				}
@@ -882,8 +921,6 @@ LRESULT CScrnCapWnd::OnMouseMove(WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-
-
 
 LRESULT CScrnCapWnd::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 {
@@ -1248,8 +1285,10 @@ void CScrnCapWnd::FullScreen()
 {
 	m_emAction = ACTION_FULLSCREEN ;
 	m_rcSel = SCREEN_RC;
-	CreateToolWnd();
-	AdjustToolPos();
+	if(!IsFullScrShot()) {
+		CreateToolWnd();
+		AdjustToolPos();
+	}
 	InvalidateRgn(GetSafeHwnd(), NULL, FALSE);
 }
 

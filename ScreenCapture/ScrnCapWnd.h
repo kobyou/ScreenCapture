@@ -38,7 +38,7 @@ typedef enum {
 
 class CScrnCapWnd: public CWndImpl {
 public:
-	CScrnCapWnd();
+	CScrnCapWnd(BOOL bFullScrShot);
 	~CScrnCapWnd();
 
 public:
@@ -109,6 +109,7 @@ public:
 
 	BOOL Save(void);
 	BOOL SaveBitmap(HBITMAP hB);
+	void GetSaveBitmapName(char bitmap[]);
 
 	void Finish(void);
 
@@ -167,7 +168,15 @@ public:
 	//@brief  ¿½ÖÁ¼ôÌù°å
 	static BOOL CopyBMP2Clipboard(HBITMAP hBMP, HWND hWnd);
 
+	BOOL IsFullScrShot()
+	{
+		return m_bFullScrShot;
+	}
 
+	void SetFullScrShot(BOOL bFullScrShot)
+	{
+		m_bFullScrShot = bFullScrShot;
+	}
 
 private:
 
@@ -216,7 +225,7 @@ private:
 private:
 	static HCURSOR m_hCursor;
 	static std::vector<RectX> m_vecAllWndRect;
-
+	BOOL m_bFullScrShot;
 public:
 	CLog m_Log;
 };
